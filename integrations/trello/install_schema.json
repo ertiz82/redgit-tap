@@ -1,0 +1,47 @@
+{
+  "name": "Trello",
+  "description": "Kanban board task management with Trello cards and lists",
+  "type": "task_management",
+  "fields": [
+    {
+      "name": "api_key",
+      "label": "API Key",
+      "type": "string",
+      "required": true,
+      "env_var": "TRELLO_API_KEY",
+      "help": "Get from trello.com/app-key"
+    },
+    {
+      "name": "token",
+      "label": "Token",
+      "type": "password",
+      "required": true,
+      "env_var": "TRELLO_TOKEN",
+      "help": "Generate token link is on the API key page"
+    },
+    {
+      "name": "board_id",
+      "label": "Board ID",
+      "type": "string",
+      "required": true,
+      "help": "Copy from board URL: trello.com/b/<board_id>/..."
+    },
+    {
+      "name": "project_key",
+      "label": "Project Key",
+      "type": "string",
+      "required": false,
+      "default": "TRELLO",
+      "help": "Prefix for card IDs (e.g., TRELLO-abc123)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg trello boards' to see your boards",
+    "Run 'rg trello lists' to see board columns",
+    "Run 'rg trello issues' to see your cards"
+  ],
+  "links": {
+    "api_key": "https://trello.com/app-key",
+    "api_docs": "https://developer.atlassian.com/cloud/trello/"
+  }
+}
