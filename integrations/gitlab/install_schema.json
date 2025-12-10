@@ -1,0 +1,48 @@
+{
+  "name": "GitLab",
+  "description": "Code hosting with MRs, branches, and repository management",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "token",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "GITLAB_TOKEN",
+      "help": "Create at GitLab > User Settings > Access Tokens with api scope"
+    },
+    {
+      "name": "host",
+      "label": "GitLab Host",
+      "type": "string",
+      "required": false,
+      "default": "https://gitlab.com",
+      "env_var": "GITLAB_HOST",
+      "help": "GitLab instance URL (for self-hosted)"
+    },
+    {
+      "name": "project_id",
+      "label": "Project ID/Path",
+      "type": "string",
+      "required": false,
+      "env_var": "GITLAB_PROJECT_ID",
+      "help": "Project path like 'namespace/project' (auto-detected from git remote)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "main",
+      "help": "Default base branch for MRs"
+    }
+  ],
+  "post_install": [
+    "Run 'rg gitlab status' to verify connection",
+    "Run 'rg gitlab projects' to list your projects"
+  ],
+  "links": {
+    "tokens": "https://gitlab.com/-/profile/personal_access_tokens",
+    "api_docs": "https://docs.gitlab.com/ee/api/"
+  }
+}
