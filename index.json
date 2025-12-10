@@ -116,6 +116,54 @@
       "version": "1.0.0",
       "type": "task_management",
       "author": "RedGit Team"
+    },
+    "github-actions": {
+      "description": "Manage workflows, trigger runs, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "gitlab-ci": {
+      "description": "Manage pipelines, trigger jobs, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "jenkins": {
+      "description": "Manage jobs, trigger builds, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "circleci": {
+      "description": "Manage pipelines, trigger workflows, view status",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "travis-ci": {
+      "description": "Manage builds, trigger jobs, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "azure-pipelines": {
+      "description": "Manage pipelines, trigger builds, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "bitbucket-pipelines": {
+      "description": "Manage pipelines, trigger builds, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
+    },
+    "drone-ci": {
+      "description": "Manage builds, trigger pipelines, view status and logs",
+      "version": "1.0.0",
+      "type": "ci_cd",
+      "author": "RedGit Team"
     }
   },
   "plugins": {}
