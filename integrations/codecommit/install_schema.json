@@ -1,0 +1,41 @@
+{
+  "name": "AWS CodeCommit",
+  "description": "Code hosting with PRs, branches, and repository management on AWS",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "region",
+      "label": "AWS Region",
+      "type": "string",
+      "required": false,
+      "default": "us-east-1",
+      "env_var": "AWS_REGION",
+      "help": "AWS region where repository is located"
+    },
+    {
+      "name": "repository_name",
+      "label": "Repository Name",
+      "type": "string",
+      "required": true,
+      "env_var": "CODECOMMIT_REPO",
+      "help": "CodeCommit repository name (auto-detected from git remote)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "main",
+      "help": "Default base branch for PRs"
+    }
+  ],
+  "post_install": [
+    "Ensure AWS credentials are configured (aws configure)",
+    "Run 'rg codecommit status' to verify connection",
+    "Requires: pip install boto3"
+  ],
+  "links": {
+    "aws_cli": "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html",
+    "codecommit_docs": "https://docs.aws.amazon.com/codecommit/latest/userguide/welcome.html"
+  }
+}
