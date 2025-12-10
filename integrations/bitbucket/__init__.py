@@ -34,6 +34,26 @@ class BitbucketIntegration(CodeHostingBase):
     name = "bitbucket"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "pr_created": {
+            "description": "Bitbucket PR created",
+            "default": True
+        },
+        "pr_merged": {
+            "description": "Bitbucket PR merged",
+            "default": True
+        },
+        "pr_approved": {
+            "description": "Bitbucket PR approved",
+            "default": False
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to Bitbucket",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.username = ""
