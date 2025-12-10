@@ -1,0 +1,39 @@
+{
+  "name": "Telegram",
+  "description": "Send notifications to Telegram chats via Bot API",
+  "type": "notification",
+  "fields": [
+    {
+      "name": "bot_token",
+      "label": "Bot Token",
+      "type": "password",
+      "required": true,
+      "env_var": "TELEGRAM_BOT_TOKEN",
+      "help": "Get from @BotFather on Telegram"
+    },
+    {
+      "name": "chat_id",
+      "label": "Chat ID",
+      "type": "string",
+      "required": true,
+      "env_var": "TELEGRAM_CHAT_ID",
+      "help": "Chat/Group/Channel ID to send messages to"
+    },
+    {
+      "name": "parse_mode",
+      "label": "Parse Mode",
+      "type": "string",
+      "required": false,
+      "default": "HTML",
+      "help": "Message format: HTML or Markdown"
+    }
+  ],
+  "post_install": [
+    "Test with 'rg notify \"Hello from RedGit!\"'",
+    "Make sure your bot is added to the chat"
+  ],
+  "links": {
+    "botfather": "https://t.me/BotFather",
+    "api_docs": "https://core.telegram.org/bots/api"
+  }
+}
