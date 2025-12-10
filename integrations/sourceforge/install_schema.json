@@ -1,0 +1,47 @@
+{
+  "name": "SourceForge",
+  "description": "Code hosting and repository management on SourceForge",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "username",
+      "label": "Username",
+      "type": "string",
+      "required": true,
+      "env_var": "SOURCEFORGE_USERNAME",
+      "help": "Your SourceForge username"
+    },
+    {
+      "name": "project",
+      "label": "Project",
+      "type": "string",
+      "required": true,
+      "env_var": "SOURCEFORGE_PROJECT",
+      "help": "SourceForge project name (auto-detected from git remote)"
+    },
+    {
+      "name": "repo_path",
+      "label": "Repository Path",
+      "type": "string",
+      "required": false,
+      "default": "code",
+      "help": "Repository path within project (default: code)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "master",
+      "help": "Default branch name"
+    }
+  ],
+  "post_install": [
+    "Run 'rg sourceforge status' to verify connection",
+    "Ensure SSH key is added to SourceForge account"
+  ],
+  "links": {
+    "ssh_keys": "https://sourceforge.net/auth/shell_services",
+    "docs": "https://sourceforge.net/p/forge/documentation/Git/"
+  }
+}
