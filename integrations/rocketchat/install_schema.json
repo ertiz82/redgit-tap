@@ -1,0 +1,46 @@
+{
+  "name": "Rocket.Chat",
+  "description": "Send notifications to Rocket.Chat channels via Incoming Webhooks",
+  "type": "notification",
+  "fields": [
+    {
+      "name": "webhook_url",
+      "label": "Webhook URL",
+      "type": "password",
+      "required": true,
+      "env_var": "ROCKETCHAT_WEBHOOK_URL",
+      "help": "Create Incoming Webhook in Administration > Integrations"
+    },
+    {
+      "name": "username",
+      "label": "Bot Username",
+      "type": "string",
+      "required": false,
+      "default": "RedGit",
+      "help": "Display name for webhook messages"
+    },
+    {
+      "name": "channel",
+      "label": "Default Channel",
+      "type": "string",
+      "required": false,
+      "help": "Override webhook's default channel (e.g., #general)"
+    },
+    {
+      "name": "icon_emoji",
+      "label": "Icon Emoji",
+      "type": "string",
+      "required": false,
+      "default": ":robot:",
+      "help": "Emoji to use as bot icon"
+    }
+  ],
+  "post_install": [
+    "Test with 'rg notify \"Hello from RedGit!\"'",
+    "Rocket.Chat webhook is ready for notifications"
+  ],
+  "links": {
+    "webhook_guide": "https://docs.rocket.chat/guides/administration/admin-panel/integrations",
+    "api_docs": "https://developer.rocket.chat/reference/api"
+  }
+}
