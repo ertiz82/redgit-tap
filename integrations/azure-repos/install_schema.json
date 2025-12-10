@@ -1,0 +1,55 @@
+{
+  "name": "Azure Repos",
+  "description": "Code hosting with PRs, branches, and repository management on Azure DevOps",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "pat",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "AZURE_DEVOPS_PAT",
+      "help": "Create at Azure DevOps > User Settings > Personal Access Tokens"
+    },
+    {
+      "name": "organization",
+      "label": "Organization",
+      "type": "string",
+      "required": true,
+      "env_var": "AZURE_DEVOPS_ORG",
+      "help": "Azure DevOps organization name"
+    },
+    {
+      "name": "project",
+      "label": "Project",
+      "type": "string",
+      "required": false,
+      "env_var": "AZURE_DEVOPS_PROJECT",
+      "help": "Project name (auto-detected from git remote)"
+    },
+    {
+      "name": "repository",
+      "label": "Repository",
+      "type": "string",
+      "required": false,
+      "env_var": "AZURE_DEVOPS_REPO",
+      "help": "Repository name (auto-detected from git remote)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "main",
+      "help": "Default base branch for PRs"
+    }
+  ],
+  "post_install": [
+    "Run 'rg azure-repos status' to verify connection",
+    "Run 'rg azure-repos repos' to list repositories"
+  ],
+  "links": {
+    "pat_guide": "https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate",
+    "api_docs": "https://docs.microsoft.com/en-us/rest/api/azure/devops/"
+  }
+}
