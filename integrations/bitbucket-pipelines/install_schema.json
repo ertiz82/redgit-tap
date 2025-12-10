@@ -1,0 +1,47 @@
+{
+  "name": "Bitbucket Pipelines",
+  "description": "Manage pipelines, trigger builds, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "username",
+      "label": "Bitbucket Username",
+      "type": "string",
+      "required": true,
+      "env_var": "BITBUCKET_USERNAME",
+      "help": "Your Bitbucket username"
+    },
+    {
+      "name": "app_password",
+      "label": "App Password",
+      "type": "password",
+      "required": true,
+      "env_var": "BITBUCKET_APP_PASSWORD",
+      "help": "App password with Pipelines Read/Write permission"
+    },
+    {
+      "name": "workspace",
+      "label": "Workspace",
+      "type": "string",
+      "required": false,
+      "env_var": "BITBUCKET_WORKSPACE",
+      "help": "Bitbucket workspace (auto-detected)"
+    },
+    {
+      "name": "repo_slug",
+      "label": "Repository Slug",
+      "type": "string",
+      "required": false,
+      "env_var": "BITBUCKET_REPO",
+      "help": "Repository slug (auto-detected)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg bitbucket-pipelines status' to see pipeline status",
+    "Run 'rg bitbucket-pipelines pipelines' to list pipelines"
+  ],
+  "links": {
+    "app_passwords": "https://bitbucket.org/account/settings/app-passwords/",
+    "api_docs": "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-pipelines/"
+  }
+}

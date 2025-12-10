@@ -1,0 +1,39 @@
+{
+  "name": "Azure Pipelines",
+  "description": "Manage pipelines, trigger builds, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "token",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "AZURE_DEVOPS_TOKEN",
+      "help": "PAT with Build (Read & Execute) scope"
+    },
+    {
+      "name": "organization",
+      "label": "Organization",
+      "type": "string",
+      "required": true,
+      "env_var": "AZURE_DEVOPS_ORG",
+      "help": "Azure DevOps organization name"
+    },
+    {
+      "name": "project",
+      "label": "Project",
+      "type": "string",
+      "required": true,
+      "env_var": "AZURE_DEVOPS_PROJECT",
+      "help": "Azure DevOps project name"
+    }
+  ],
+  "post_install": [
+    "Run 'rg azure-pipelines status' to see pipeline status",
+    "Run 'rg azure-pipelines pipelines' to list pipelines"
+  ],
+  "links": {
+    "tokens": "https://dev.azure.com/{organization}/_usersSettings/tokens",
+    "api_docs": "https://docs.microsoft.com/en-us/rest/api/azure/devops/pipelines/"
+  }
+}

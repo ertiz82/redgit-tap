@@ -1,0 +1,46 @@
+{
+  "name": "Drone CI",
+  "description": "Manage builds, trigger pipelines, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "server",
+      "label": "Drone Server URL",
+      "type": "string",
+      "required": true,
+      "env_var": "DRONE_SERVER",
+      "help": "Drone server URL (e.g., https://drone.company.com)"
+    },
+    {
+      "name": "token",
+      "label": "API Token",
+      "type": "password",
+      "required": true,
+      "env_var": "DRONE_TOKEN",
+      "help": "Drone personal token (from account settings)"
+    },
+    {
+      "name": "owner",
+      "label": "Repository Owner",
+      "type": "string",
+      "required": false,
+      "env_var": "DRONE_OWNER",
+      "help": "Repository owner/org (auto-detected)"
+    },
+    {
+      "name": "repo",
+      "label": "Repository Name",
+      "type": "string",
+      "required": false,
+      "env_var": "DRONE_REPO",
+      "help": "Repository name (auto-detected)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg drone-ci status' to see build status",
+    "Run 'rg drone-ci builds' to list builds"
+  ],
+  "links": {
+    "api_docs": "https://docs.drone.io/api/overview/"
+  }
+}

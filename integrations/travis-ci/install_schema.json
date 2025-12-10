@@ -1,0 +1,41 @@
+{
+  "name": "Travis CI",
+  "description": "Manage builds, trigger jobs, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "token",
+      "label": "API Token",
+      "type": "password",
+      "required": true,
+      "env_var": "TRAVIS_TOKEN",
+      "help": "Travis CI API token"
+    },
+    {
+      "name": "repo_slug",
+      "label": "Repository Slug",
+      "type": "string",
+      "required": false,
+      "env_var": "TRAVIS_REPO",
+      "help": "Repository slug (e.g., 'owner/repo', auto-detected)"
+    },
+    {
+      "name": "endpoint",
+      "label": "Endpoint",
+      "type": "select",
+      "required": false,
+      "default": "com",
+      "options": ["com", "org"],
+      "env_var": "TRAVIS_ENDPOINT",
+      "help": "Use 'com' for travis-ci.com, 'org' for travis-ci.org"
+    }
+  ],
+  "post_install": [
+    "Run 'rg travis-ci status' to see build status",
+    "Run 'rg travis-ci builds' to list builds"
+  ],
+  "links": {
+    "tokens": "https://app.travis-ci.com/account/preferences",
+    "api_docs": "https://docs.travis-ci.com/api/"
+  }
+}
