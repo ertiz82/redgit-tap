@@ -1,0 +1,38 @@
+{
+  "name": "Discord",
+  "description": "Send notifications to Discord channels via webhooks",
+  "type": "notification",
+  "fields": [
+    {
+      "name": "webhook_url",
+      "label": "Webhook URL",
+      "type": "password",
+      "required": true,
+      "env_var": "DISCORD_WEBHOOK_URL",
+      "help": "Create webhook in Channel Settings > Integrations"
+    },
+    {
+      "name": "username",
+      "label": "Bot Username",
+      "type": "string",
+      "required": false,
+      "default": "RedGit",
+      "help": "Display name for webhook messages"
+    },
+    {
+      "name": "avatar_url",
+      "label": "Avatar URL",
+      "type": "string",
+      "required": false,
+      "help": "Custom avatar image URL (optional)"
+    }
+  ],
+  "post_install": [
+    "Test with 'rg notify \"Hello from RedGit!\"'",
+    "Discord webhook is ready for commit notifications"
+  ],
+  "links": {
+    "webhook_guide": "https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks",
+    "api_docs": "https://discord.com/developers/docs/resources/webhook"
+  }
+}
