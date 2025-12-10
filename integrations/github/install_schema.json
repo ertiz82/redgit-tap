@@ -1,0 +1,47 @@
+{
+  "name": "GitHub",
+  "description": "Code hosting with PRs, branches, and repository management",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "token",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "GITHUB_TOKEN",
+      "help": "Create at github.com/settings/tokens with repo scope"
+    },
+    {
+      "name": "owner",
+      "label": "Repository Owner",
+      "type": "string",
+      "required": false,
+      "env_var": "GITHUB_OWNER",
+      "help": "Username or organization (auto-detected from git remote)"
+    },
+    {
+      "name": "repo",
+      "label": "Repository Name",
+      "type": "string",
+      "required": false,
+      "env_var": "GITHUB_REPO",
+      "help": "Repository name (auto-detected from git remote)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "main",
+      "help": "Default base branch for PRs"
+    }
+  ],
+  "post_install": [
+    "Run 'rg github status' to verify connection",
+    "Run 'rg github repos' to list your repositories"
+  ],
+  "links": {
+    "tokens": "https://github.com/settings/tokens",
+    "api_docs": "https://docs.github.com/en/rest"
+  }
+}
