@@ -1,0 +1,55 @@
+{
+  "name": "Zulip",
+  "description": "Send notifications to Zulip streams via Bot API",
+  "type": "notification",
+  "fields": [
+    {
+      "name": "server_url",
+      "label": "Server URL",
+      "type": "string",
+      "required": true,
+      "env_var": "ZULIP_SERVER_URL",
+      "help": "Your Zulip server URL (e.g., https://chat.zulip.org)"
+    },
+    {
+      "name": "bot_email",
+      "label": "Bot Email",
+      "type": "string",
+      "required": true,
+      "env_var": "ZULIP_BOT_EMAIL",
+      "help": "Bot's email address from Settings > Your bots"
+    },
+    {
+      "name": "api_key",
+      "label": "API Key",
+      "type": "password",
+      "required": true,
+      "env_var": "ZULIP_API_KEY",
+      "help": "Bot's API key from Settings > Your bots"
+    },
+    {
+      "name": "stream",
+      "label": "Default Stream",
+      "type": "string",
+      "required": true,
+      "env_var": "ZULIP_STREAM",
+      "help": "Stream name to post messages to"
+    },
+    {
+      "name": "topic",
+      "label": "Default Topic",
+      "type": "string",
+      "required": false,
+      "default": "RedGit",
+      "help": "Default topic for messages"
+    }
+  ],
+  "post_install": [
+    "Test with 'rg notify \"Hello from RedGit!\"'",
+    "Make sure bot is subscribed to the stream"
+  ],
+  "links": {
+    "bot_guide": "https://zulip.com/help/add-a-bot-or-integration",
+    "api_docs": "https://zulip.com/api/"
+  }
+}
