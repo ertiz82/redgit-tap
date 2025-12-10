@@ -3,14 +3,116 @@
   "description": "Official repository of RedGit integrations and plugins",
   "version": "1.0.0",
   "integrations": {
+    "github": {
+      "description": "Code hosting with PRs, branches, and repository management",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
+    "gitlab": {
+      "description": "Code hosting with MRs, branches, and repository management",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
+    "bitbucket": {
+      "description": "Code hosting with PRs, branches, and repository management",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
+    "codecommit": {
+      "description": "AWS CodeCommit code hosting with PRs and repository management",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
+    "azure-repos": {
+      "description": "Azure Repos code hosting with PRs and repository management",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
+    "sourceforge": {
+      "description": "SourceForge code hosting and repository management",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
+    "allura": {
+      "description": "Apache Allura forge code hosting with tickets and merge requests",
+      "version": "1.0.0",
+      "type": "code_hosting",
+      "author": "RedGit Team"
+    },
     "slack": {
       "description": "Send commit notifications, PR updates, and alerts to Slack channels",
       "version": "1.0.0",
       "type": "notification",
       "author": "RedGit Team"
     },
+    "discord": {
+      "description": "Send notifications to Discord channels via webhooks",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
+    "telegram": {
+      "description": "Send notifications to Telegram chats via Bot API",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
+    "msteams": {
+      "description": "Send notifications to Microsoft Teams channels via webhooks",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
+    "mattermost": {
+      "description": "Send notifications to Mattermost channels via webhooks",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
+    "rocketchat": {
+      "description": "Send notifications to Rocket.Chat channels via webhooks",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
+    "zulip": {
+      "description": "Send notifications to Zulip streams via Bot API",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
+    "whatsapp": {
+      "description": "Send notifications via WhatsApp Business Cloud API",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    },
     "linear": {
       "description": "Modern issue tracking with cycles, projects, and team collaboration",
+      "version": "1.0.0",
+      "type": "task_management",
+      "author": "RedGit Team"
+    },
+    "notion": {
+      "description": "Use Notion databases as task boards for development workflow",
+      "version": "1.0.0",
+      "type": "task_management",
+      "author": "RedGit Team"
+    },
+    "asana": {
+      "description": "Project and task management with Asana workspaces and projects",
+      "version": "1.0.0",
+      "type": "task_management",
+      "author": "RedGit Team"
+    },
+    "trello": {
+      "description": "Kanban board task management with Trello cards and lists",
       "version": "1.0.0",
       "type": "task_management",
       "author": "RedGit Team"
