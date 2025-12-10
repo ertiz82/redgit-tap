@@ -1,0 +1,55 @@
+{
+  "name": "Notion",
+  "description": "Use Notion databases as task boards for development workflow",
+  "type": "task_management",
+  "fields": [
+    {
+      "name": "api_key",
+      "label": "Integration Token",
+      "type": "password",
+      "required": true,
+      "env_var": "NOTION_API_KEY",
+      "help": "Create at notion.so/my-integrations"
+    },
+    {
+      "name": "database_id",
+      "label": "Database ID",
+      "type": "string",
+      "required": true,
+      "help": "Copy from database URL: notion.so/<workspace>/<database_id>"
+    },
+    {
+      "name": "project_key",
+      "label": "Project Key",
+      "type": "string",
+      "required": false,
+      "default": "NOTION",
+      "help": "Prefix for issue IDs (e.g., NOTION-abc123)"
+    },
+    {
+      "name": "status_property",
+      "label": "Status Property Name",
+      "type": "string",
+      "required": false,
+      "default": "Status",
+      "help": "Name of the Status property in your database"
+    },
+    {
+      "name": "assignee_property",
+      "label": "Assignee Property Name",
+      "type": "string",
+      "required": false,
+      "default": "Assignee",
+      "help": "Name of the Person property for assignee"
+    }
+  ],
+  "post_install": [
+    "Make sure to share the database with your integration",
+    "Run 'rg notion databases' to verify connection",
+    "Run 'rg notion issues' to see your tasks"
+  ],
+  "links": {
+    "create_integration": "https://www.notion.so/my-integrations",
+    "api_docs": "https://developers.notion.com/"
+  }
+}
