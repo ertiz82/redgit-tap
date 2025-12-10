@@ -1,0 +1,50 @@
+{
+  "name": "Slack",
+  "description": "Send commit notifications, PR updates, and alerts to Slack channels",
+  "fields": [
+    {
+      "key": "webhook_url",
+      "prompt": "Slack Webhook URL",
+      "type": "secret",
+      "env_var": "SLACK_WEBHOOK_URL",
+      "help": "Create at: https://api.slack.com/messaging/webhooks",
+      "required": true
+    },
+    {
+      "key": "channel",
+      "prompt": "Default channel (optional)",
+      "type": "text",
+      "placeholder": "#dev-commits",
+      "help": "Leave empty to use webhook's default channel",
+      "required": false
+    },
+    {
+      "key": "username",
+      "prompt": "Bot username",
+      "type": "text",
+      "default": "RedGit",
+      "required": false
+    },
+    {
+      "key": "icon_emoji",
+      "prompt": "Bot icon emoji",
+      "type": "text",
+      "default": ":git:",
+      "help": "Slack emoji code, e.g., :robot_face:",
+      "required": false
+    },
+    {
+      "key": "notify_on",
+      "prompt": "Notify on events",
+      "type": "choice",
+      "choices": ["commit", "commit,branch", "commit,branch,pr", "all"],
+      "default": "commit,branch",
+      "help": "Which events trigger notifications"
+    }
+  ],
+  "defaults": {
+    "username": "RedGit",
+    "icon_emoji": ":git:",
+    "notify_on": ["commit", "branch"]
+  }
+}
