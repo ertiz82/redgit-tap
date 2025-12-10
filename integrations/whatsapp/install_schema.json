@@ -1,0 +1,39 @@
+{
+  "name": "WhatsApp",
+  "description": "Send notifications via WhatsApp Business Cloud API",
+  "type": "notification",
+  "fields": [
+    {
+      "name": "access_token",
+      "label": "Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "WHATSAPP_ACCESS_TOKEN",
+      "help": "Permanent token from Meta Business Suite"
+    },
+    {
+      "name": "phone_number_id",
+      "label": "Phone Number ID",
+      "type": "string",
+      "required": true,
+      "env_var": "WHATSAPP_PHONE_NUMBER_ID",
+      "help": "WhatsApp Business phone number ID"
+    },
+    {
+      "name": "recipient_number",
+      "label": "Recipient Number",
+      "type": "string",
+      "required": true,
+      "env_var": "WHATSAPP_RECIPIENT_NUMBER",
+      "help": "Default recipient phone number (with country code)"
+    }
+  ],
+  "post_install": [
+    "Test with 'rg notify \"Hello from RedGit!\"'",
+    "Recipient must have messaged your business number first"
+  ],
+  "links": {
+    "setup_guide": "https://developers.facebook.com/docs/whatsapp/cloud-api/get-started",
+    "api_docs": "https://developers.facebook.com/docs/whatsapp/cloud-api"
+  }
+}
