@@ -1,0 +1,39 @@
+{
+  "name": "GitHub Actions",
+  "description": "Manage workflows, trigger runs, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "token",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "GITHUB_TOKEN",
+      "help": "Token with 'repo' and 'workflow' scopes"
+    },
+    {
+      "name": "owner",
+      "label": "Repository Owner",
+      "type": "string",
+      "required": false,
+      "env_var": "GITHUB_OWNER",
+      "help": "Username or organization (auto-detected)"
+    },
+    {
+      "name": "repo",
+      "label": "Repository Name",
+      "type": "string",
+      "required": false,
+      "env_var": "GITHUB_REPO",
+      "help": "Repository name (auto-detected)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg github-actions status' to see workflow status",
+    "Run 'rg github-actions workflows' to list workflows"
+  ],
+  "links": {
+    "tokens": "https://github.com/settings/tokens",
+    "api_docs": "https://docs.github.com/en/rest/actions"
+  }
+}

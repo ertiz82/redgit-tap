@@ -1,0 +1,31 @@
+{
+  "name": "CircleCI",
+  "description": "Manage pipelines, trigger workflows, view status",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "token",
+      "label": "Personal API Token",
+      "type": "password",
+      "required": true,
+      "env_var": "CIRCLECI_TOKEN",
+      "help": "CircleCI personal API token"
+    },
+    {
+      "name": "project_slug",
+      "label": "Project Slug",
+      "type": "string",
+      "required": false,
+      "env_var": "CIRCLECI_PROJECT",
+      "help": "Project slug (e.g., 'gh/owner/repo', auto-detected)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg circleci status' to see pipeline status",
+    "Run 'rg circleci pipelines' to list pipelines"
+  ],
+  "links": {
+    "tokens": "https://app.circleci.com/settings/user/tokens",
+    "api_docs": "https://circleci.com/docs/api/v2/"
+  }
+}

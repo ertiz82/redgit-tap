@@ -1,0 +1,40 @@
+{
+  "name": "GitLab CI",
+  "description": "Manage pipelines, trigger jobs, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "token",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "GITLAB_TOKEN",
+      "help": "Token with 'api' scope"
+    },
+    {
+      "name": "project_id",
+      "label": "Project ID or Path",
+      "type": "string",
+      "required": false,
+      "env_var": "GITLAB_PROJECT_ID",
+      "help": "Project ID or path (e.g., 'user/repo', auto-detected)"
+    },
+    {
+      "name": "base_url",
+      "label": "GitLab URL",
+      "type": "string",
+      "required": false,
+      "default": "https://gitlab.com",
+      "env_var": "GITLAB_URL",
+      "help": "GitLab instance URL (for self-hosted)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg gitlab-ci status' to see pipeline status",
+    "Run 'rg gitlab-ci pipelines' to list pipelines"
+  ],
+  "links": {
+    "tokens": "https://gitlab.com/-/profile/personal_access_tokens",
+    "api_docs": "https://docs.gitlab.com/ee/api/pipelines.html"
+  }
+}

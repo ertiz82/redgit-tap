@@ -1,0 +1,46 @@
+{
+  "name": "Jenkins",
+  "description": "Manage jobs, trigger builds, view status and logs",
+  "type": "ci_cd",
+  "fields": [
+    {
+      "name": "url",
+      "label": "Jenkins URL",
+      "type": "string",
+      "required": true,
+      "env_var": "JENKINS_URL",
+      "help": "Jenkins server URL (e.g., https://jenkins.company.com)"
+    },
+    {
+      "name": "username",
+      "label": "Username",
+      "type": "string",
+      "required": true,
+      "env_var": "JENKINS_USER",
+      "help": "Jenkins username"
+    },
+    {
+      "name": "token",
+      "label": "API Token",
+      "type": "password",
+      "required": true,
+      "env_var": "JENKINS_TOKEN",
+      "help": "Jenkins API token (from user settings)"
+    },
+    {
+      "name": "job_name",
+      "label": "Default Job Name",
+      "type": "string",
+      "required": false,
+      "env_var": "JENKINS_JOB",
+      "help": "Default job to use for commands"
+    }
+  ],
+  "post_install": [
+    "Run 'rg jenkins status' to see build status",
+    "Run 'rg jenkins jobs' to list available jobs"
+  ],
+  "links": {
+    "api_docs": "https://www.jenkins.io/doc/book/using/remote-access-api/"
+  }
+}
