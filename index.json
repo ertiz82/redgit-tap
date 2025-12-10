@@ -1,0 +1,14 @@
+{
+  "name": "RedGit Official Tap",
+  "description": "Official repository of RedGit integrations and plugins",
+  "version": "1.0.0",
+  "integrations": {
+    "slack": {
+      "description": "Send commit notifications, PR updates, and alerts to Slack channels",
+      "version": "1.0.0",
+      "type": "notification",
+      "author": "RedGit Team"
+    }
+  },
+  "plugins": {}
+}
