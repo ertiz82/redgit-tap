@@ -1,0 +1,55 @@
+{
+  "name": "Bitbucket",
+  "description": "Code hosting with PRs, branches, and repository management",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "username",
+      "label": "Username",
+      "type": "string",
+      "required": true,
+      "env_var": "BITBUCKET_USERNAME",
+      "help": "Your Bitbucket username"
+    },
+    {
+      "name": "app_password",
+      "label": "App Password",
+      "type": "password",
+      "required": true,
+      "env_var": "BITBUCKET_APP_PASSWORD",
+      "help": "Create at Bitbucket > Personal Settings > App passwords"
+    },
+    {
+      "name": "workspace",
+      "label": "Workspace",
+      "type": "string",
+      "required": false,
+      "env_var": "BITBUCKET_WORKSPACE",
+      "help": "Workspace slug (auto-detected from git remote)"
+    },
+    {
+      "name": "repo_slug",
+      "label": "Repository Slug",
+      "type": "string",
+      "required": false,
+      "env_var": "BITBUCKET_REPO_SLUG",
+      "help": "Repository slug (auto-detected from git remote)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "main",
+      "help": "Default base branch for PRs"
+    }
+  ],
+  "post_install": [
+    "Run 'rg bitbucket status' to verify connection",
+    "Run 'rg bitbucket repos' to list repositories"
+  ],
+  "links": {
+    "app_passwords": "https://bitbucket.org/account/settings/app-passwords/",
+    "api_docs": "https://developer.atlassian.com/cloud/bitbucket/rest/"
+  }
+}
