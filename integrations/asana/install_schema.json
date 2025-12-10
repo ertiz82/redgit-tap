@@ -1,0 +1,46 @@
+{
+  "name": "Asana",
+  "description": "Project and task management with Asana workspaces and projects",
+  "type": "task_management",
+  "fields": [
+    {
+      "name": "api_key",
+      "label": "Personal Access Token",
+      "type": "password",
+      "required": true,
+      "env_var": "ASANA_API_KEY",
+      "help": "Generate at app.asana.com/0/developer-console"
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace ID",
+      "type": "string",
+      "required": false,
+      "help": "Auto-detected from your account if not specified"
+    },
+    {
+      "name": "project_id",
+      "label": "Project ID",
+      "type": "string",
+      "required": false,
+      "help": "Copy from project URL. Run 'rg asana projects' to list"
+    },
+    {
+      "name": "project_key",
+      "label": "Project Key",
+      "type": "string",
+      "required": false,
+      "default": "ASANA",
+      "help": "Prefix for task IDs (e.g., ASANA-123456)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg asana workspaces' to see your workspaces",
+    "Run 'rg asana projects' to list projects",
+    "Run 'rg asana issues' to see your tasks"
+  ],
+  "links": {
+    "developer_console": "https://app.asana.com/0/developer-console",
+    "api_docs": "https://developers.asana.com/docs"
+  }
+}
