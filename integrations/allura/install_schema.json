@@ -1,0 +1,55 @@
+{
+  "name": "Apache Allura",
+  "description": "Code hosting with tickets, wiki, and repository management on Allura-powered forges",
+  "type": "code_hosting",
+  "fields": [
+    {
+      "name": "base_url",
+      "label": "Base URL",
+      "type": "string",
+      "required": true,
+      "env_var": "ALLURA_BASE_URL",
+      "help": "Allura instance URL (e.g., https://forge.example.com)"
+    },
+    {
+      "name": "project",
+      "label": "Project",
+      "type": "string",
+      "required": true,
+      "env_var": "ALLURA_PROJECT",
+      "help": "Project name/slug (auto-detected from git remote)"
+    },
+    {
+      "name": "mount_point",
+      "label": "Repository Mount Point",
+      "type": "string",
+      "required": false,
+      "default": "git",
+      "help": "Repository tool mount point (default: git)"
+    },
+    {
+      "name": "bearer_token",
+      "label": "Bearer Token",
+      "type": "password",
+      "required": false,
+      "env_var": "ALLURA_BEARER_TOKEN",
+      "help": "API bearer token (required for write operations)"
+    },
+    {
+      "name": "default_branch",
+      "label": "Default Branch",
+      "type": "string",
+      "required": false,
+      "default": "master",
+      "help": "Default branch name"
+    }
+  ],
+  "post_install": [
+    "Run 'rg allura status' to verify connection",
+    "Bearer token is needed for API write operations"
+  ],
+  "links": {
+    "allura_docs": "https://allura.apache.org/",
+    "api_docs": "https://forge-allura.apache.org/p/allura/wiki/API/"
+  }
+}
