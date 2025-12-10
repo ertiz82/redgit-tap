@@ -44,6 +44,30 @@ class LinearIntegration(TaskManagementBase):
     name = "linear"
     integration_type = IntegrationType.TASK_MANAGEMENT
 
+    # Custom notification events
+    notification_events = {
+        "issue_created": {
+            "description": "Linear issue created",
+            "default": True
+        },
+        "issue_completed": {
+            "description": "Linear issue completed",
+            "default": True
+        },
+        "issue_transitioned": {
+            "description": "Linear issue status changed",
+            "default": False
+        },
+        "issue_assigned": {
+            "description": "Linear issue assigned",
+            "default": False
+        },
+        "cycle_started": {
+            "description": "Linear cycle started",
+            "default": False
+        },
+    }
+
     # Linear API endpoint
     API_URL = "https://api.linear.app/graphql"
 

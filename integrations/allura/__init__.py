@@ -38,6 +38,26 @@ class AlluraIntegration(CodeHostingBase):
     name = "allura"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "mr_created": {
+            "description": "Allura merge request created",
+            "default": True
+        },
+        "mr_merged": {
+            "description": "Allura merge request merged",
+            "default": True
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to Allura",
+            "default": False
+        },
+        "ticket_created": {
+            "description": "Allura ticket created",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.base_url = ""

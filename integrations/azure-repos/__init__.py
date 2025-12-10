@@ -35,6 +35,26 @@ class AzureReposIntegration(CodeHostingBase):
     name = "azure-repos"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "pr_created": {
+            "description": "Azure Repos PR created",
+            "default": True
+        },
+        "pr_completed": {
+            "description": "Azure Repos PR completed (merged)",
+            "default": True
+        },
+        "pr_abandoned": {
+            "description": "Azure Repos PR abandoned",
+            "default": False
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to Azure Repos",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.pat = ""

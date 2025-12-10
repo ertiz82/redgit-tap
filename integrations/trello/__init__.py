@@ -38,6 +38,26 @@ class TrelloIntegration(TaskManagementBase):
     name = "trello"
     integration_type = IntegrationType.TASK_MANAGEMENT
 
+    # Custom notification events
+    notification_events = {
+        "card_created": {
+            "description": "Trello card created",
+            "default": True
+        },
+        "card_moved": {
+            "description": "Trello card moved to list",
+            "default": True
+        },
+        "card_assigned": {
+            "description": "Trello card member added",
+            "default": False
+        },
+        "card_archived": {
+            "description": "Trello card archived",
+            "default": False
+        },
+    }
+
     API_URL = "https://api.trello.com/1"
 
     DEFAULT_STATUS_MAP = {

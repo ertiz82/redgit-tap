@@ -34,6 +34,26 @@ class GitLabIntegration(CodeHostingBase):
     name = "gitlab"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "mr_created": {
+            "description": "GitLab MR created",
+            "default": True
+        },
+        "mr_merged": {
+            "description": "GitLab MR merged",
+            "default": True
+        },
+        "mr_approved": {
+            "description": "GitLab MR approved",
+            "default": False
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to GitLab",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.token = ""

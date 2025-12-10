@@ -37,6 +37,30 @@ class AsanaIntegration(TaskManagementBase):
     name = "asana"
     integration_type = IntegrationType.TASK_MANAGEMENT
 
+    # Custom notification events
+    notification_events = {
+        "task_created": {
+            "description": "Asana task created",
+            "default": True
+        },
+        "task_completed": {
+            "description": "Asana task completed",
+            "default": True
+        },
+        "task_transitioned": {
+            "description": "Asana task moved to section",
+            "default": False
+        },
+        "task_assigned": {
+            "description": "Asana task assigned",
+            "default": False
+        },
+        "subtask_created": {
+            "description": "Asana subtask created",
+            "default": False
+        },
+    }
+
     API_URL = "https://app.asana.com/api/1.0"
 
     DEFAULT_STATUS_MAP = {

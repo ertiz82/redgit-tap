@@ -32,6 +32,26 @@ class CodeCommitIntegration(CodeHostingBase):
     name = "codecommit"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "pr_created": {
+            "description": "CodeCommit PR created",
+            "default": True
+        },
+        "pr_merged": {
+            "description": "CodeCommit PR merged",
+            "default": True
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to CodeCommit",
+            "default": False
+        },
+        "branch_created": {
+            "description": "Branch created on CodeCommit",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.region = ""

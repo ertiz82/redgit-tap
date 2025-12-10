@@ -38,6 +38,26 @@ class NotionIntegration(TaskManagementBase):
     name = "notion"
     integration_type = IntegrationType.TASK_MANAGEMENT
 
+    # Custom notification events
+    notification_events = {
+        "page_created": {
+            "description": "Notion page created",
+            "default": True
+        },
+        "page_completed": {
+            "description": "Notion page marked complete",
+            "default": True
+        },
+        "page_transitioned": {
+            "description": "Notion page status changed",
+            "default": False
+        },
+        "page_assigned": {
+            "description": "Notion page assigned",
+            "default": False
+        },
+    }
+
     API_URL = "https://api.notion.com/v1"
     API_VERSION = "2022-06-28"
 

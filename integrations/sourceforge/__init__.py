@@ -35,6 +35,18 @@ class SourceForgeIntegration(CodeHostingBase):
     name = "sourceforge"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "mr_created": {
+            "description": "SourceForge merge request created",
+            "default": True
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to SourceForge",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.username = ""

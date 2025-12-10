@@ -33,6 +33,26 @@ class GitHubIntegration(CodeHostingBase):
     name = "github"
     integration_type = IntegrationType.CODE_HOSTING
 
+    # Custom notification events
+    notification_events = {
+        "pr_created": {
+            "description": "GitHub PR created",
+            "default": True
+        },
+        "pr_merged": {
+            "description": "GitHub PR merged",
+            "default": True
+        },
+        "pr_review_requested": {
+            "description": "GitHub PR review requested",
+            "default": False
+        },
+        "branch_pushed": {
+            "description": "Branch pushed to GitHub",
+            "default": False
+        },
+    }
+
     def __init__(self):
         super().__init__()
         self.token = ""
