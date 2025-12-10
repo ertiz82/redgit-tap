@@ -52,6 +52,19 @@ rg install slack@v1.0.0
 | [asana](./integrations/asana) | Project and task management with Asana |
 | [trello](./integrations/trello) | Kanban board task management with Trello |
 
+### CI/CD
+
+| Name | Description |
+|------|-------------|
+| [github-actions](./integrations/github-actions) | Manage workflows, trigger runs, view status and logs |
+| [gitlab-ci](./integrations/gitlab-ci) | Manage pipelines, trigger jobs, view status and logs |
+| [jenkins](./integrations/jenkins) | Manage jobs, trigger builds, view status and logs |
+| [circleci](./integrations/circleci) | Manage pipelines, trigger workflows, view status |
+| [travis-ci](./integrations/travis-ci) | Manage builds, trigger jobs, view status and logs |
+| [azure-pipelines](./integrations/azure-pipelines) | Manage Azure DevOps pipelines and builds |
+| [bitbucket-pipelines](./integrations/bitbucket-pipelines) | Manage Bitbucket pipelines and builds |
+| [drone-ci](./integrations/drone-ci) | Manage Drone builds, promotions, and approvals |
+
 ## Quick Start
 
 ```bash
@@ -106,6 +119,7 @@ integrations/my-integration/
 | `code_hosting` | `CodeHostingBase` | Git hosting, PRs, branches |
 | `notification` | `NotificationBase` | Send alerts and messages |
 | `task_management` | `TaskManagementBase` | Issue tracking, sprints |
+| `ci_cd` | `CICDBase` | CI/CD pipelines, builds, deployments |
 
 ### Example Integration
 
