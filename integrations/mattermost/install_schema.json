@@ -1,0 +1,45 @@
+{
+  "name": "Mattermost",
+  "description": "Send notifications to Mattermost channels via Incoming Webhooks",
+  "type": "notification",
+  "fields": [
+    {
+      "name": "webhook_url",
+      "label": "Webhook URL",
+      "type": "password",
+      "required": true,
+      "env_var": "MATTERMOST_WEBHOOK_URL",
+      "help": "Create Incoming Webhook in Integrations menu"
+    },
+    {
+      "name": "username",
+      "label": "Bot Username",
+      "type": "string",
+      "required": false,
+      "default": "RedGit",
+      "help": "Display name for webhook messages"
+    },
+    {
+      "name": "channel",
+      "label": "Default Channel",
+      "type": "string",
+      "required": false,
+      "help": "Override webhook's default channel (optional)"
+    },
+    {
+      "name": "icon_url",
+      "label": "Icon URL",
+      "type": "string",
+      "required": false,
+      "help": "Custom icon image URL (optional)"
+    }
+  ],
+  "post_install": [
+    "Test with 'rg notify \"Hello from RedGit!\"'",
+    "Mattermost webhook is ready for notifications"
+  ],
+  "links": {
+    "webhook_guide": "https://developers.mattermost.com/integrate/webhooks/incoming/",
+    "api_docs": "https://api.mattermost.com/"
+  }
+}
