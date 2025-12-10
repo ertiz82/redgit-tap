@@ -1,0 +1,46 @@
+{
+  "name": "Linear",
+  "description": "Modern issue tracking for software teams with cycles and projects",
+  "type": "task_management",
+  "fields": [
+    {
+      "name": "api_key",
+      "label": "API Key",
+      "type": "password",
+      "required": true,
+      "env_var": "LINEAR_API_KEY",
+      "help": "Generate at Linear Settings > API > Personal API keys"
+    },
+    {
+      "name": "team_key",
+      "label": "Team Key",
+      "type": "string",
+      "required": true,
+      "help": "Team identifier (e.g., ENG, PROD). Find it in your Linear URL"
+    },
+    {
+      "name": "branch_pattern",
+      "label": "Branch Pattern",
+      "type": "string",
+      "required": false,
+      "default": "feature/{issue_id}-{description}",
+      "help": "Pattern for branch names. Variables: {issue_id}, {issue_number}, {description}, {team_key}"
+    },
+    {
+      "name": "commit_prefix",
+      "label": "Commit Prefix",
+      "type": "string",
+      "required": false,
+      "help": "Prefix for commit messages (default: team key)"
+    }
+  ],
+  "post_install": [
+    "Run 'rg linear teams' to list available teams",
+    "Run 'rg linear issues' to see your active issues",
+    "Run 'rg linear status' to verify connection"
+  ],
+  "links": {
+    "api_docs": "https://developers.linear.app/docs/graphql/working-with-the-graphql-api",
+    "api_keys": "https://linear.app/settings/api"
+  }
+}

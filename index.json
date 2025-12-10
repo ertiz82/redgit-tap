@@ -8,6 +8,12 @@
       "version": "1.0.0",
       "type": "notification",
       "author": "RedGit Team"
+    },
+    "linear": {
+      "description": "Modern issue tracking with cycles, projects, and team collaboration",
+      "version": "1.0.0",
+      "type": "task_management",
+      "author": "RedGit Team"
     }
   },
   "plugins": {}
