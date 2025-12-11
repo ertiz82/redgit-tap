@@ -2,14 +2,25 @@
 
 Official repository of RedGit integrations and plugins.
 
-> **New to RedGit?** First install RedGit from the [main repository](https://github.com/ertiz82/redgit):
-> ```bash
-> # Using Homebrew (macOS/Linux)
-> brew tap ertiz82/tap && brew install redgit
+---
+
+## Main Repository
+
+> **[RedGit](https://github.com/ertiz82/redgit)** - AI-powered Git workflow assistant with task management integration
 >
-> # Using pip
-> pip install redgit
-> ```
+> For installation, usage, and core documentation, visit the **[main RedGit repository](https://github.com/ertiz82/redgit)**.
+
+### Quick Install
+
+```bash
+# Using Homebrew (macOS/Linux)
+brew tap ertiz82/tap && brew install redgit
+
+# Using pip
+pip install redgit
+```
+
+---
 
 ## Installation
 
@@ -189,6 +200,10 @@ Define installation wizard fields in `install_schema.json`:
 2. Create your integration/plugin
 3. Update `index.json` with your integration
 4. Submit a pull request
+
+## Documentation
+
+For complete documentation, usage guides, and core features, visit the **[main RedGit repository](https://github.com/ertiz82/redgit)**.
 
 ## License
 
