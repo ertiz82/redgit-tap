@@ -2,6 +2,15 @@
 
 Official repository of RedGit integrations and plugins.
 
+> **New to RedGit?** First install RedGit from the [main repository](https://github.com/ertiz82/redgit):
+> ```bash
+> # Using Homebrew (macOS/Linux)
+> brew tap ertiz82/tap && brew install redgit
+>
+> # Using pip
+> pip install redgit
+> ```
+
 ## Installation
 
 Install integrations directly from this tap:
@@ -65,6 +74,19 @@ rg install slack@v1.0.0
 | [bitbucket-pipelines](./integrations/bitbucket-pipelines) | Manage Bitbucket pipelines and builds |
 | [drone-ci](./integrations/drone-ci) | Manage Drone builds, promotions, and approvals |
 
+### Code Quality
+
+| Name | Description |
+|------|-------------|
+| [sonarqube](./integrations/sonarqube) | SonarQube/SonarCloud code quality with quality gates |
+| [codeclimate](./integrations/codeclimate) | CodeClimate maintainability and test coverage |
+| [codacy](./integrations/codacy) | Codacy automated code review and security analysis |
+| [snyk](./integrations/snyk) | Snyk security vulnerability scanning |
+| [dependabot](./integrations/dependabot) | GitHub Dependabot for automated dependency updates |
+| [renovate](./integrations/renovate) | Renovate automated dependency updates |
+| [codecov](./integrations/codecov) | Codecov code coverage reporting |
+| [coveralls](./integrations/coveralls) | Coveralls coverage tracking |
+
 ## Quick Start
 
 ```bash
@@ -120,6 +142,7 @@ integrations/my-integration/
 | `notification` | `NotificationBase` | Send alerts and messages |
 | `task_management` | `TaskManagementBase` | Issue tracking, sprints |
 | `ci_cd` | `CICDBase` | CI/CD pipelines, builds, deployments |
+| `code_quality` | `CodeQualityBase` | Code analysis, security scanning, coverage |
 
 ### Example Integration
 
