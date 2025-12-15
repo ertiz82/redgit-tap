@@ -1,0 +1,94 @@
+{
+  "name": "Jira",
+  "description": "Jira integration - Add comments, update issue status, and manage sprints",
+  "fields": [
+    {
+      "key": "site",
+      "prompt": "Jira site URL",
+      "type": "text",
+      "placeholder": "https://your-domain.atlassian.net",
+      "required": true
+    },
+    {
+      "key": "email",
+      "prompt": "Jira account email",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "token",
+      "prompt": "Jira API token",
+      "type": "secret",
+      "env_var": "JIRA_API_TOKEN",
+      "help": "Create at: https://id.atlassian.com/manage-profile/security/api-tokens",
+      "required": true
+    },
+    {
+      "key": "project_key",
+      "prompt": "Project key",
+      "type": "text",
+      "help": "e.g., SCRUM, PROJ (the prefix in issue IDs like SCRUM-123)",
+      "required": true
+    },
+    {
+      "key": "project_name",
+      "prompt": "Project name (optional)",
+      "type": "text",
+      "required": false
+    },
+    {
+      "key": "board_type",
+      "prompt": "Board type",
+      "type": "choice",
+      "choices": ["scrum", "kanban", "none"],
+      "default": "scrum",
+      "help": "Select 'scrum' if using sprints, 'kanban' for continuous flow"
+    },
+    {
+      "key": "board_id",
+      "prompt": "Board ID (optional, will auto-detect if empty)",
+      "type": "text",
+      "help": "Find in board URL: /jira/software/projects/PROJ/boards/123",
+      "required": false
+    },
+    {
+      "key": "branch_pattern",
+      "prompt": "Branch naming pattern",
+      "type": "choice",
+      "choices": [
+        "feature/{issue_key}-{description}",
+        "feature/{project_key}-{issue_number}-{description}",
+        "{issue_key}-{description}",
+        "{issue_key}"
+      ],
+      "default": "feature/{issue_key}-{description}",
+      "help": "Variables: {issue_key}, {issue_number}, {project_key}, {description}"
+    },
+    {
+      "key": "issue_language",
+      "prompt": "Language for Jira issues",
+      "type": "choice",
+      "choices": ["en", "tr", "de", "fr", "es", "pt", "it", "nl", "pl", "ru", "zh", "ja", "ko"],
+      "default": "en",
+      "help": "Language for issue titles/descriptions (commits stay in English)"
+    }
+  ],
+  "defaults": {
+    "api_version": "3",
+    "commit_prefix": "${project_key}",
+    "branch_pattern": "feature/{issue_key}-{description}",
+    "issue_types": {
+      "epic": "10001",
+      "task": "10003",
+      "story": "10004",
+      "feature": "10005",
+      "bug": "10007",
+      "subtask": "10002"
+    },
+    "statuses": {
+      "todo": ["To Do", "Backlog", "Open"],
+      "in_progress": ["In Progress", "In Development"],
+      "done": ["Done", "Resolved", "Closed"]
+    }
+  }
+}
