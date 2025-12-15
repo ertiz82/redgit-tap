@@ -67,6 +67,7 @@ rg install slack@v1.0.0
 
 | Name | Description |
 |------|-------------|
+| [jira](./integrations/jira) | Full-featured Jira Cloud with Scrum/Kanban support |
 | [linear](./integrations/linear) | Modern issue tracking with cycles and projects |
 | [notion](./integrations/notion) | Use Notion databases as task boards |
 | [asana](./integrations/asana) | Project and task management with Asana |
@@ -97,6 +98,14 @@ rg install slack@v1.0.0
 | [renovate](./integrations/renovate) | Renovate automated dependency updates |
 | [codecov](./integrations/codecov) | Codecov code coverage reporting |
 | [coveralls](./integrations/coveralls) | Coveralls coverage tracking |
+
+## Available Plugins
+
+| Name | Description |
+|------|-------------|
+| [changelog](./plugins/changelog) | Automatic changelog generation from git commits |
+| [laravel](./plugins/laravel) | Laravel framework-specific file grouping and commit prompts |
+| [version](./plugins/version) | Semantic versioning management for projects |
 
 ## Quick Start
 
