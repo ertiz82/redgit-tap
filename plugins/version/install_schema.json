@@ -1,0 +1,25 @@
+{
+  "name": "Version",
+  "description": "Semantic versioning management for projects",
+  "type": "plugin",
+  "auto_detect": true,
+  "fields": [
+    {
+      "name": "tag_prefix",
+      "label": "Tag Prefix",
+      "type": "string",
+      "required": false,
+      "default": "v",
+      "help": "Prefix for git tags (e.g., 'v' for v1.0.0)"
+    }
+  ],
+  "post_install": [
+    "Show version: rg version show",
+    "Release: rg version release patch/minor/major",
+    "Or use shortcut: rg release patch"
+  ],
+  "links": {
+    "semver": "https://semver.org",
+    "conventional_commits": "https://www.conventionalcommits.org"
+  }
+}
