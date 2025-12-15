@@ -1,0 +1,32 @@
+{
+  "name": "Changelog",
+  "description": "Automatic changelog generation from git commits",
+  "type": "plugin",
+  "auto_detect": false,
+  "fields": [
+    {
+      "name": "output_dir",
+      "label": "Output Directory",
+      "type": "string",
+      "required": false,
+      "default": "changelogs",
+      "help": "Directory for version-specific changelog files"
+    },
+    {
+      "name": "group_by_type",
+      "label": "Group by Type",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "help": "Group commits by type (feat, fix, etc.)"
+    }
+  ],
+  "post_install": [
+    "Generate changelog: rg changelog generate <version>",
+    "View current changelog: rg changelog show"
+  ],
+  "links": {
+    "conventional_commits": "https://www.conventionalcommits.org",
+    "keep_a_changelog": "https://keepachangelog.com"
+  }
+}
