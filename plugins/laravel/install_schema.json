@@ -1,0 +1,16 @@
+{
+  "name": "Laravel",
+  "description": "Laravel framework-specific file grouping and commit prompts",
+  "type": "plugin",
+  "auto_detect": true,
+  "fields": [],
+  "post_install": [
+    "Plugin auto-activates when Laravel project is detected",
+    "Groups framework files separately from custom code",
+    "Detects Laravel version from composer.json/composer.lock"
+  ],
+  "links": {
+    "laravel_docs": "https://laravel.com/docs",
+    "conventional_commits": "https://www.conventionalcommits.org"
+  }
+}
