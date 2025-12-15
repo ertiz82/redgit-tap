@@ -117,6 +117,12 @@
       "type": "task_management",
       "author": "RedGit Team"
     },
+    "jira": {
+      "description": "Full-featured Jira Cloud integration with Scrum/Kanban, sprints, and issue management",
+      "version": "1.0.0",
+      "type": "task_management",
+      "author": "RedGit Team"
+    },
     "github-actions": {
       "description": "Manage workflows, trigger runs, view status and logs",
       "version": "1.0.0",
@@ -166,5 +172,26 @@
       "author": "RedGit Team"
     }
   },
-  "plugins": {}
+  "plugins": {
+    "laravel": {
+      "description": "Laravel framework-specific file grouping and commit prompts",
+      "version": "1.0.0",
+      "type": "framework",
+      "author": "RedGit Team",
+      "auto_detect": true
+    },
+    "changelog": {
+      "description": "Automatic changelog generation from git commits",
+      "version": "1.0.0",
+      "type": "utility",
+      "author": "RedGit Team"
+    },
+    "version": {
+      "description": "Semantic versioning management for projects",
+      "version": "1.0.0",
+      "type": "utility",
+      "author": "RedGit Team",
+      "auto_detect": true
+    }
+  }
 }
