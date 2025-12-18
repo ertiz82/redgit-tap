@@ -186,16 +186,36 @@ class AsanaIntegration(TaskManagementBase):
             return self._parse_task(data)
         return None
 
+    def can_create_issues(self) -> bool:
+        """Check if user can create tasks in the workspace/project."""
+        if not self.enabled or not self.workspace_id:
+            return False
+
+        # Try to check workspace membership
+        # Asana workspace members can generally create tasks
+        if self._me and self._me.get("workspaces"):
+            for ws in self._me["workspaces"]:
+                if ws.get("gid") == self.workspace_id:
+                    return True
+        return False
+
     def create_issue(
         self,
         summary: str,
         description: str = "",
         issue_type: str = "task",
         story_points: Optional[float] = None,
-        assign_to_me: bool = True
+        assign_to_me: bool = True,
+        parent_key: Optional[str] = None
     ) -> Optional[str]:
-        """Create a new task."""
+        """Create a new task or subtask."""
         if not self.enabled or not self.workspace_id:
+            return None
+
+        # If parent_key provided, create subtask
+        if parent_key or issue_type == "subtask":
+            if parent_key:
+                return self.create_subtask(parent_key, summary)
             return None
 
         task_data = {
@@ -212,11 +232,16 @@ class AsanaIntegration(TaskManagementBase):
         if assign_to_me and self._me:
             task_data["assignee"] = self._me["gid"]
 
-        data = self._request("POST", "tasks", task_data)
+        try:
+            data = self._request("POST", "tasks", task_data)
 
-        if data and data.get("gid"):
-            return f"{self.project_key}-{data['gid']}"
-        return None
+            if data and data.get("gid"):
+                return f"{self.project_key}-{data['gid']}"
+            return None
+        except HTTPError as e:
+            if e.code == 403:
+                raise PermissionError(f"No permission to create tasks in workspace {self.workspace_id}")
+            raise
 
     def add_comment(self, issue_key: str, comment: str) -> bool:
         """Add comment (story) to task."""

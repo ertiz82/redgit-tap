@@ -315,6 +315,15 @@ class JiraIntegration(TaskManagementBase):
 
     # ==================== TaskManagementBase Implementation ====================
 
+    def _get_issue_fields(self, include_priority: bool = False) -> str:
+        """Get dynamic fields string for API calls."""
+        fields = ["summary", "status", "issuetype", "assignee", "description"]
+        if self.story_points_field:
+            fields.append(self.story_points_field)
+        if include_priority:
+            fields.append("priority")
+        return ",".join(fields)
+
     def get_my_active_issues(self) -> List[Issue]:
         """Get issues assigned to current user that are in progress or to do."""
         if not self.enabled:
@@ -335,7 +344,7 @@ class JiraIntegration(TaskManagementBase):
             params = {
                 "jql": jql,
                 "maxResults": 50,
-                "fields": "summary,status,issuetype,assignee,description,customfield_10016"
+                "fields": self._get_issue_fields()
             }
             response = self.session.get(url, params=params)
             response.raise_for_status()
@@ -368,7 +377,7 @@ class JiraIntegration(TaskManagementBase):
         try:
             url = f"{self.site}/rest/api/3/issue/{issue_key}"
             params = {
-                "fields": "summary,status,issuetype,assignee,description,customfield_10016"
+                "fields": self._get_issue_fields()
             }
             response = self.session.get(url, params=params)
             response.raise_for_status()
@@ -382,19 +391,36 @@ class JiraIntegration(TaskManagementBase):
         description: str = "",
         issue_type: str = "task",
         story_points: Optional[float] = None,
-        assign_to_me: bool = True
+        assign_to_me: bool = True,
+        parent_key: Optional[str] = None
     ) -> Optional[str]:
         """Create a new issue in the project.
 
         Args:
             summary: Issue title
             description: Issue description
-            issue_type: Type of issue (task, story, bug, etc.)
+            issue_type: Type of issue (task, story, bug, subtask, etc.)
             story_points: Story points (defaults to 1 if not specified)
             assign_to_me: Auto-assign to current user (default: True)
+            parent_key: Parent issue key for subtasks
+
+        Returns:
+            Issue key on success, None on failure
+
+        Raises:
+            PermissionError: If user doesn't have permission to create issues
         """
         if not self.enabled or not self.project_key:
             return None
+
+        # Handle subtask creation
+        if parent_key or issue_type.lower() == "subtask":
+            return self.create_subtask(
+                parent_key=parent_key,
+                summary=summary,
+                description=description,
+                assign_to_me=assign_to_me
+            )
 
         issue_type_id = self.issue_types.get(issue_type.lower(), self.issue_types["task"])
 
@@ -429,6 +455,16 @@ class JiraIntegration(TaskManagementBase):
                     payload["fields"]["assignee"] = {"accountId": my_account_id}
 
             response = self.session.post(url, json=payload)
+
+            # Check for permission errors
+            if response.status_code == 403:
+                raise PermissionError("No permission to create issues in this project")
+            if response.status_code == 400:
+                error_data = response.json()
+                errors = error_data.get("errors", {})
+                if "issuetype" in errors or "project" in errors:
+                    raise PermissionError(f"Permission error: {errors}")
+
             response.raise_for_status()
 
             issue_key = response.json().get("key")
@@ -438,8 +474,84 @@ class JiraIntegration(TaskManagementBase):
                 self.add_issue_to_active_sprint(issue_key)
 
             return issue_key
+        except PermissionError:
+            raise
         except Exception:
             return None
+
+    def create_subtask(
+        self,
+        parent_key: str,
+        summary: str,
+        description: str = "",
+        assign_to_me: bool = True
+    ) -> Optional[str]:
+        """Create a subtask under a parent issue.
+
+        Args:
+            parent_key: Parent issue key (e.g., PROJ-123)
+            summary: Subtask title
+            description: Subtask description
+            assign_to_me: Auto-assign to current user (default: True)
+
+        Returns:
+            Subtask key on success, None on failure
+        """
+        if not self.enabled or not parent_key:
+            return None
+
+        subtask_type_id = self.issue_types.get("subtask", "10002")
+
+        try:
+            url = f"{self.site}/rest/api/3/issue"
+            payload = {
+                "fields": {
+                    "project": {"key": self.project_key},
+                    "parent": {"key": parent_key},
+                    "summary": summary,
+                    "issuetype": {"id": subtask_type_id}
+                }
+            }
+
+            if description:
+                payload["fields"]["description"] = {
+                    "type": "doc",
+                    "version": 1,
+                    "content": [{
+                        "type": "paragraph",
+                        "content": [{"type": "text", "text": description}]
+                    }]
+                }
+
+            # Auto-assign to current user
+            if assign_to_me:
+                my_account_id = self._get_my_account_id()
+                if my_account_id:
+                    payload["fields"]["assignee"] = {"accountId": my_account_id}
+
+            response = self.session.post(url, json=payload)
+            response.raise_for_status()
+
+            return response.json().get("key")
+        except Exception:
+            return None
+
+    def can_create_issues(self) -> bool:
+        """Check if current user has permission to create issues."""
+        if not self.enabled:
+            return False
+
+        try:
+            url = f"{self.site}/rest/api/3/mypermissions"
+            params = {"projectKey": self.project_key, "permissions": "CREATE_ISSUES"}
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+
+            permissions = response.json().get("permissions", {})
+            create_perm = permissions.get("CREATE_ISSUES", {})
+            return create_perm.get("havePermission", False)
+        except Exception:
+            return True  # Assume yes if can't check
 
     def _get_my_account_id(self) -> Optional[str]:
         """Get current user's account ID."""
@@ -680,7 +792,7 @@ class JiraIntegration(TaskManagementBase):
         try:
             url = f"{self.site}/rest/agile/1.0/sprint/{sprint_id}/issue"
             params = {
-                "fields": "summary,status,issuetype,assignee,description,customfield_10016"
+                "fields": self._get_issue_fields()
             }
             response = self.session.get(url, params=params)
             response.raise_for_status()
@@ -1008,7 +1120,7 @@ class JiraIntegration(TaskManagementBase):
             params = {
                 "jql": jql,
                 "maxResults": max_results,
-                "fields": "summary,status,issuetype,assignee,description,customfield_10016,priority"
+                "fields": self._get_issue_fields(include_priority=True)
             }
             response = self.session.get(url, params=params)
             response.raise_for_status()
@@ -1033,7 +1145,7 @@ class JiraIntegration(TaskManagementBase):
             params = {
                 "jql": jql,
                 "maxResults": max_results,
-                "fields": "summary,status,issuetype,assignee,description,customfield_10016,priority"
+                "fields": self._get_issue_fields(include_priority=True)
             }
             response = self.session.get(url, params=params)
             response.raise_for_status()

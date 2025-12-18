@@ -188,16 +188,60 @@ class TrelloIntegration(TaskManagementBase):
             return self._parse_card(card)
         return None
 
+    def can_create_issues(self) -> bool:
+        """Check if user can create cards on the board."""
+        if not self.enabled or not self.board_id:
+            return False
+
+        # Check if user is a member of the board
+        if self._me:
+            members = self.get_team_members()
+            for m in members:
+                if m.get("id") == self._me.get("id"):
+                    return True
+        return False
+
     def create_issue(
         self,
         summary: str,
         description: str = "",
         issue_type: str = "task",
         story_points: Optional[float] = None,
-        assign_to_me: bool = True
+        assign_to_me: bool = True,
+        parent_key: Optional[str] = None
     ) -> Optional[str]:
-        """Create a new card."""
+        """Create a new card or checklist item (if parent_key provided)."""
         if not self.enabled or not self.board_id:
+            return None
+
+        # If parent_key provided, add as checklist item instead of new card
+        # Trello doesn't have subtasks, but has checklists
+        if parent_key:
+            parent_card_id = parent_key.replace(f"{self.project_key}-", "")
+            # Get or create a "Subtasks" checklist
+            checklists = self.get_checklists(parent_key)
+            checklist_id = None
+
+            for cl in checklists:
+                if cl["name"].lower() in ["subtasks", "tasks", "items"]:
+                    checklist_id = cl["id"]
+                    break
+
+            if not checklist_id:
+                # Create "Subtasks" checklist
+                checklist = self._request("POST", "checklists", {
+                    "idCard": parent_card_id,
+                    "name": "Subtasks"
+                })
+                if checklist:
+                    checklist_id = checklist["id"]
+
+            if checklist_id:
+                item = self._request("POST", f"checklists/{checklist_id}/checkItems", {
+                    "name": summary
+                })
+                if item:
+                    return f"{parent_key}/item-{item.get('id', '')[:8]}"
             return None
 
         # Find first list (usually To Do/Backlog)
@@ -227,11 +271,16 @@ class TrelloIntegration(TaskManagementBase):
         if assign_to_me and self._me:
             card_data["idMembers"] = self._me["id"]
 
-        card = self._request("POST", "cards", card_data)
+        try:
+            card = self._request("POST", "cards", card_data)
 
-        if card and card.get("id"):
-            return f"{self.project_key}-{card['id']}"
-        return None
+            if card and card.get("id"):
+                return f"{self.project_key}-{card['id']}"
+            return None
+        except HTTPError as e:
+            if e.code == 401 or e.code == 403:
+                raise PermissionError(f"No permission to create cards on board {self.board_id}")
+            raise
 
     def add_comment(self, issue_key: str, comment: str) -> bool:
         """Add comment to card."""
