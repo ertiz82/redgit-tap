@@ -195,13 +195,24 @@ class NotionIntegration(TaskManagementBase):
             return self._parse_page(data)
         return None
 
+    def can_create_issues(self) -> bool:
+        """Check if user can create pages in the database."""
+        if not self.enabled or not self.database_id:
+            return False
+
+        # If we have a valid database_id and we're connected, we can likely create
+        # Notion API doesn't have explicit permission check, but we can verify database access
+        db_info = self._request("GET", f"databases/{self.database_id}")
+        return db_info is not None
+
     def create_issue(
         self,
         summary: str,
         description: str = "",
         issue_type: str = "task",
         story_points: Optional[float] = None,
-        assign_to_me: bool = True
+        assign_to_me: bool = True,
+        parent_key: Optional[str] = None
     ) -> Optional[str]:
         """Create a new page in the database."""
         if not self.enabled or not self.database_id:
@@ -228,6 +239,19 @@ class NotionIntegration(TaskManagementBase):
                 "people": [{"id": self._me["id"]}]
             }
 
+        # If parent_key is provided, try to add parent relation
+        # This requires a "Parent" relation property in the database
+        if parent_key:
+            parent_page_id = parent_key.replace(f"{self.project_key}-", "")
+            # Notion doesn't have native subtasks, but we can link via relation property
+            # This assumes you have a "Parent" relation property set up
+            try:
+                properties["Parent"] = {
+                    "relation": [{"id": parent_page_id}]
+                }
+            except Exception:
+                pass  # Silently ignore if no Parent relation property
+
         page_data = {
             "parent": {"database_id": self.database_id},
             "properties": properties
@@ -245,11 +269,16 @@ class NotionIntegration(TaskManagementBase):
                 }
             ]
 
-        data = self._request("POST", "pages", page_data)
+        try:
+            data = self._request("POST", "pages", page_data)
 
-        if data and data.get("id"):
-            return f"{self.project_key}-{data['id'][:8]}"
-        return None
+            if data and data.get("id"):
+                return f"{self.project_key}-{data['id'][:8]}"
+            return None
+        except HTTPError as e:
+            if e.code == 403:
+                raise PermissionError(f"No permission to create pages in database {self.database_id}")
+            raise
 
     def add_comment(self, issue_key: str, comment: str) -> bool:
         """Add comment to a page."""

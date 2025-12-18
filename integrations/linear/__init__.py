@@ -304,15 +304,29 @@ class LinearIntegration(TaskManagementBase):
 
         return self._parse_issue(data["issue"])
 
+    def can_create_issues(self) -> bool:
+        """Check if user can create issues in the team."""
+        if not self.enabled or not self.team_id:
+            return False
+
+        # Check if user is a member of the team
+        members = self.get_team_members()
+        if self._me:
+            for m in members:
+                if m.get("id") == self._me.get("id"):
+                    return True
+        return False
+
     def create_issue(
         self,
         summary: str,
         description: str = "",
         issue_type: str = "task",
         story_points: Optional[float] = None,
-        assign_to_me: bool = True
+        assign_to_me: bool = True,
+        parent_key: Optional[str] = None
     ) -> Optional[str]:
-        """Create a new issue in the team."""
+        """Create a new issue in the team, optionally as a sub-issue."""
         if not self.enabled or not self.team_id:
             return None
 
@@ -341,6 +355,12 @@ class LinearIntegration(TaskManagementBase):
         if assign_to_me and self._me:
             input_data["assigneeId"] = self._me["id"]
 
+        # If parent_key provided, create as sub-issue
+        if parent_key:
+            parent_id = self._get_issue_id(parent_key)
+            if parent_id:
+                input_data["parentId"] = parent_id
+
         # Add to active cycle if exists
         cycle = self.get_active_sprint()
         if cycle:
@@ -350,6 +370,10 @@ class LinearIntegration(TaskManagementBase):
 
         if data and data.get("issueCreate", {}).get("success"):
             return data["issueCreate"]["issue"]["identifier"]
+
+        # Check for permission error
+        if data is None:
+            raise PermissionError(f"No permission to create issues in team {self.team_key}")
 
         return None
 
