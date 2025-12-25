@@ -925,32 +925,54 @@ class JiraIntegration(TaskManagementBase):
                             return resp.status_code in (200, 204)
 
             # Auto-advance: If target status not reachable, try next available stage
+            # BUT only if it's a "done-like" or "progress-like" status (never go backwards to todo)
             if auto_advance and transitions:
-                # Priority order for advancing (prefer done-like statuses)
-                priority_keywords = ["done", "complete", "closed", "resolved", "finish",
-                                    "review", "test", "qa", "verify", "approve"]
+                # Keywords that indicate forward progress (acceptable auto-transitions)
+                forward_keywords = ["done", "complete", "closed", "resolved", "finish",
+                                   "review", "test", "qa", "verify", "approve",
+                                   "progress", "development", "devam", "tamamlan"]
 
-                # Sort transitions by priority
+                # Keywords that indicate backwards movement (NEVER auto-transition to these)
+                backward_keywords = ["todo", "backlog", "open", "new", "to do", "yapılacak", "açık"]
+
+                # Filter out backward transitions
+                valid_transitions = []
+                for t in transitions:
+                    target = t.get("to", {}).get("name", "").lower()
+                    # Skip if target looks like a "todo" status
+                    is_backward = any(kw in target for kw in backward_keywords)
+                    if not is_backward:
+                        valid_transitions.append(t)
+
+                # Sort valid transitions by priority (done-like first)
                 def get_priority(t):
                     target = t.get("to", {}).get("name", "").lower()
-                    for i, keyword in enumerate(priority_keywords):
+                    for i, keyword in enumerate(forward_keywords):
                         if keyword in target:
                             return i
-                    return len(priority_keywords)  # Lowest priority
+                    return len(forward_keywords)  # Lowest priority
 
-                sorted_transitions = sorted(transitions, key=get_priority)
+                sorted_transitions = sorted(valid_transitions, key=get_priority)
 
-                # Try the highest priority transition
+                # Only auto-advance if we have a valid forward transition
                 if sorted_transitions:
                     best_transition = sorted_transitions[0]
-                    if verbose:
-                        print(f"[DEBUG] Auto-advancing to: {best_transition.get('to', {}).get('name', '')}")
-                    resp = self.session.post(url, json={"transition": {"id": best_transition["id"]}})
-                    return resp.status_code in (200, 204)
+                    target_name = best_transition.get('to', {}).get('name', '')
+
+                    # Double-check it's a forward transition
+                    target_lower = target_name.lower()
+                    is_forward = any(kw in target_lower for kw in forward_keywords)
+
+                    if is_forward:
+                        if verbose:
+                            print(f"[DEBUG] Auto-advancing to: {target_name}")
+                        resp = self.session.post(url, json={"transition": {"id": best_transition["id"]}})
+                        return resp.status_code in (200, 204)
 
             if verbose:
                 print(f"[DEBUG] No matching transition found for status '{status}'")
                 print(f"[DEBUG] Status map: {self.status_map.get(status_lower, [])}")
+                print(f"[DEBUG] Available transitions: {[t.get('to', {}).get('name', '') for t in transitions]}")
 
         except Exception as e:
             if verbose:
