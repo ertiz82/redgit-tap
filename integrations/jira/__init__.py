@@ -100,9 +100,11 @@ class JiraIntegration(TaskManagementBase):
         self.transition_strategy = "auto"  # auto or ask
         self.commit_prefix = ""
         self.branch_pattern = "feature/{issue_key}-{description}"
-        self.story_points_field = "customfield_10016"
+        self.story_points_field = "customfield"
         self.issue_language = None  # None = same as commit language, or "tr", "en", etc.
         self.session = None
+        # Field permissions cache: {issue_type_id: set of field keys}
+        self._field_permissions_cache: Dict[str, set] = {}
 
     def setup(self, config: dict):
         """
@@ -116,7 +118,7 @@ class JiraIntegration(TaskManagementBase):
                 project_key: "SCRUM"
                 board_type: "scrum"  # scrum, kanban, none
                 board_id: 1  # optional, auto-detected if empty
-                story_points_field: "customfield_10016"  # optional
+                story_points_field: "customfield"  # optional
                 # API token: JIRA_API_TOKEN env variable or token field
                 # Transition strategy: auto or ask
                 # - auto: Automatically transition using status mappings
@@ -136,7 +138,7 @@ class JiraIntegration(TaskManagementBase):
         self.project_name = config.get("project_name", "")
         self.board_type = config.get("board_type", "scrum")
         self.board_id = config.get("board_id")
-        self.story_points_field = config.get("story_points_field", "customfield_10016")
+        self.story_points_field = config.get("story_points_field", "customfield")
         self.transition_strategy = config.get("transition_strategy", "auto")
 
         # Override issue types if provided
@@ -197,6 +199,96 @@ class JiraIntegration(TaskManagementBase):
             pass
         return None
 
+    def _get_creatable_fields(self, issue_type_id: str, force_refresh: bool = False) -> set:
+        """
+        Get available fields for issue creation based on screen configuration.
+
+        Uses Jira's createmeta API to determine which fields can be set
+        when creating an issue of the given type.
+
+        Args:
+            issue_type_id: The issue type ID to check
+            force_refresh: Force refresh from API even if cached
+
+        Returns:
+            Set of field keys that can be set on issue creation
+        """
+        # Check cache first
+        cache_key = f"{self.project_key}:{issue_type_id}"
+        if not force_refresh and cache_key in self._field_permissions_cache:
+            return self._field_permissions_cache[cache_key]
+
+        available_fields = set()
+
+        if not self.enabled or not self.project_key:
+            return available_fields
+
+        try:
+            # Use createmeta API to get available fields for this issue type
+            url = f"{self.site}/rest/api/3/issue/createmeta/{self.project_key}/issuetypes/{issue_type_id}"
+            response = self.session.get(url)
+
+            if response.status_code == 200:
+                data = response.json()
+                # Extract field keys from the response
+                for field_key in data.get("values", []):
+                    if isinstance(field_key, dict):
+                        available_fields.add(field_key.get("fieldId", ""))
+                    else:
+                        available_fields.add(str(field_key))
+
+                # Also check the 'fields' key if present (older API format)
+                fields = data.get("fields", {})
+                if isinstance(fields, dict):
+                    available_fields.update(fields.keys())
+
+            # Fallback: try older createmeta format
+            if not available_fields:
+                url = f"{self.site}/rest/api/3/issue/createmeta"
+                params = {
+                    "projectKeys": self.project_key,
+                    "issuetypeIds": issue_type_id,
+                    "expand": "projects.issuetypes.fields"
+                }
+                response = self.session.get(url, params=params)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    for project in data.get("projects", []):
+                        for issuetype in project.get("issuetypes", []):
+                            if str(issuetype.get("id")) == str(issue_type_id):
+                                fields = issuetype.get("fields", {})
+                                available_fields.update(fields.keys())
+
+            # Cache the result
+            if available_fields:
+                self._field_permissions_cache[cache_key] = available_fields
+
+        except Exception as e:
+            import sys
+            print(f"[Jira] Failed to get creatable fields: {e}", file=sys.stderr)
+
+        return available_fields
+
+    def _can_set_field(self, issue_type_id: str, field_key: str) -> bool:
+        """
+        Check if a field can be set when creating an issue.
+
+        Args:
+            issue_type_id: The issue type ID
+            field_key: The field key to check (e.g., 'assignee', 'customfield')
+
+        Returns:
+            True if the field can be set, False otherwise
+        """
+        creatable_fields = self._get_creatable_fields(issue_type_id)
+
+        # If we couldn't get field info, assume we can set it (fail open)
+        if not creatable_fields:
+            return True
+
+        return field_key in creatable_fields
+
     @staticmethod
     def after_install(config_values: dict) -> dict:
         """
@@ -226,7 +318,7 @@ class JiraIntegration(TaskManagementBase):
             config_values["story_points_field"] = story_points_field
             typer.secho(f"   ✓ Story points field: {story_points_field}", fg=typer.colors.GREEN)
         else:
-            typer.echo("   ⚠️  Story points field not found (using default: customfield_10016)")
+            typer.echo("   ⚠️  Story points field not found (using default: customfield)")
 
         return config_values
 
@@ -241,7 +333,7 @@ class JiraIntegration(TaskManagementBase):
             token: Jira API token
 
         Returns:
-            Custom field ID (e.g., "customfield_10016") or None if not found
+            Custom field ID (e.g., "customfield") or None if not found
         """
         try:
             import requests
@@ -444,14 +536,19 @@ class JiraIntegration(TaskManagementBase):
                     }]
                 }
 
-            # Set story points (default to 1 if not specified)
-            if self.story_points_field:
+            # Check field permissions and add optional fields only if allowed
+            # Set story points (default to 1 if not specified) - only if field is available
+            if self.story_points_field and self._can_set_field(issue_type_id, self.story_points_field):
                 payload["fields"][self.story_points_field] = story_points if story_points else 1
 
-            # Auto-assign to current user
+            # Check if assignee can be set during creation
+            can_set_assignee = self._can_set_field(issue_type_id, "assignee")
+
+            # Auto-assign to current user (during creation if allowed)
+            my_account_id = None
             if assign_to_me:
                 my_account_id = self._get_my_account_id()
-                if my_account_id:
+                if my_account_id and can_set_assignee:
                     payload["fields"]["assignee"] = {"accountId": my_account_id}
 
             response = self.session.post(url, json=payload)
@@ -464,10 +561,20 @@ class JiraIntegration(TaskManagementBase):
                 errors = error_data.get("errors", {})
                 if "issuetype" in errors or "project" in errors:
                     raise PermissionError(f"Permission error: {errors}")
+                # If specific field errors, retry without those fields
+                if errors:
+                    for field_key in list(errors.keys()):
+                        if field_key in payload["fields"] and field_key not in ["project", "summary", "issuetype"]:
+                            del payload["fields"][field_key]
+                    response = self.session.post(url, json=payload)
 
             response.raise_for_status()
 
             issue_key = response.json().get("key")
+
+            # Assign after creation if couldn't set during creation
+            if issue_key and assign_to_me and my_account_id and not can_set_assignee:
+                self.assign_issue(issue_key, my_account_id)
 
             # Add to active sprint if using scrum
             if self.board_type == "scrum" and issue_key:
@@ -573,6 +680,10 @@ class JiraIntegration(TaskManagementBase):
     ) -> Optional[str]:
         """Create a subtask under a parent issue.
 
+        Checks field permissions and adapts to Jira screen configuration.
+        If certain fields cannot be set during creation, they will be
+        set afterwards using separate API calls.
+
         Args:
             parent_key: Parent issue key (e.g., PROJ-123)
             summary: Subtask title
@@ -603,7 +714,8 @@ class JiraIntegration(TaskManagementBase):
                 }
             }
 
-            if description:
+            # Check if description can be set during creation
+            if description and self._can_set_field(subtask_type_id, "description"):
                 payload["fields"]["description"] = {
                     "type": "doc",
                     "version": 1,
@@ -613,13 +725,21 @@ class JiraIntegration(TaskManagementBase):
                     }]
                 }
 
-            # Auto-assign to current user
-            if assign_to_me:
-                my_account_id = self._get_my_account_id()
-                if my_account_id:
-                    payload["fields"]["assignee"] = {"accountId": my_account_id}
-
+            # Create subtask without assignee (assign separately afterwards)
             response = self.session.post(url, json=payload)
+
+            # If specific field errors, retry without those fields
+            if response.status_code == 400:
+                try:
+                    error_data = response.json()
+                    errors = error_data.get("errors", {})
+                    if errors:
+                        for field_key in list(errors.keys()):
+                            if field_key in payload["fields"] and field_key not in ["project", "summary", "issuetype", "parent"]:
+                                del payload["fields"][field_key]
+                        response = self.session.post(url, json=payload)
+                except Exception:
+                    pass
 
             # Check for errors
             if response.status_code >= 400:
@@ -635,7 +755,15 @@ class JiraIntegration(TaskManagementBase):
 
             response.raise_for_status()
 
-            return response.json().get("key")
+            subtask_key = response.json().get("key")
+
+            # Assign after creation if requested (works even if assignee field not on create screen)
+            if subtask_key and assign_to_me:
+                my_account_id = self._get_my_account_id()
+                if my_account_id:
+                    self.assign_issue(subtask_key, my_account_id)
+
+            return subtask_key
         except Exception as e:
             import sys
             print(f"[Jira] Subtask creation error: {e}", file=sys.stderr)
