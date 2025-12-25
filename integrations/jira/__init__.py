@@ -479,6 +479,91 @@ class JiraIntegration(TaskManagementBase):
         except Exception:
             return None
 
+    def _detect_subtask_type_id(self) -> Optional[str]:
+        """Auto-detect subtask issue type ID from Jira API and save to config."""
+        if not self.enabled:
+            return None
+
+        try:
+            url = f"{self.site}/rest/api/3/issuetype/project?projectId={self._get_project_id()}"
+            response = self.session.get(url)
+
+            # Fallback to global issue types if project-specific fails
+            if response.status_code != 200:
+                url = f"{self.site}/rest/api/3/issuetype"
+                response = self.session.get(url)
+
+            response.raise_for_status()
+            issue_types = response.json()
+
+            # Find subtask type
+            for it in issue_types:
+                name = it.get("name", "").lower()
+                # Check if it's a subtask type
+                if it.get("subtask") or name in ["subtask", "sub-task", "alt görev"]:
+                    subtask_id = it.get("id")
+                    if subtask_id:
+                        # Save to config for future use
+                        self._save_subtask_type_to_config(subtask_id)
+                        return subtask_id
+
+        except Exception as e:
+            import sys
+            print(f"[Jira] Failed to detect subtask type: {e}", file=sys.stderr)
+
+        return None
+
+    def _get_project_id(self) -> Optional[str]:
+        """Get project ID from project key."""
+        if not self.enabled or not self.project_key:
+            return None
+
+        try:
+            url = f"{self.site}/rest/api/3/project/{self.project_key}"
+            response = self.session.get(url)
+            response.raise_for_status()
+            return response.json().get("id")
+        except Exception:
+            return None
+
+    def _save_subtask_type_to_config(self, subtask_id: str):
+        """Save detected subtask type ID to config.yaml."""
+        try:
+            import yaml
+            from pathlib import Path
+
+            # Try project config first, then global
+            config_paths = [
+                Path(".redgit/config.yaml"),
+                Path.home() / ".redgit" / "config.yaml"
+            ]
+
+            for config_path in config_paths:
+                if config_path.exists():
+                    config = yaml.safe_load(config_path.read_text()) or {}
+
+                    # Ensure structure exists
+                    if "integrations" not in config:
+                        config["integrations"] = {}
+                    if "jira" not in config["integrations"]:
+                        config["integrations"]["jira"] = {}
+                    if "issue_types" not in config["integrations"]["jira"]:
+                        config["integrations"]["jira"]["issue_types"] = {}
+
+                    # Save subtask ID
+                    config["integrations"]["jira"]["issue_types"]["subtask"] = subtask_id
+
+                    # Write back
+                    config_path.write_text(yaml.dump(config, allow_unicode=True, sort_keys=False))
+
+                    import sys
+                    print(f"[Jira] Auto-detected subtask type ID: {subtask_id} (saved to config)", file=sys.stderr)
+                    break
+
+        except Exception as e:
+            import sys
+            print(f"[Jira] Failed to save subtask type to config: {e}", file=sys.stderr)
+
     def create_subtask(
         self,
         parent_key: str,
@@ -500,7 +585,12 @@ class JiraIntegration(TaskManagementBase):
         if not self.enabled or not parent_key:
             return None
 
-        subtask_type_id = self.issue_types.get("subtask", "10002")
+        # Get subtask type ID - auto-detect if not configured
+        subtask_type_id = self.issue_types.get("subtask")
+        if not subtask_type_id:
+            subtask_type_id = self._detect_subtask_type_id()
+        if not subtask_type_id:
+            subtask_type_id = "10002"  # Last resort fallback
 
         try:
             url = f"{self.site}/rest/api/3/issue"
@@ -530,10 +620,25 @@ class JiraIntegration(TaskManagementBase):
                     payload["fields"]["assignee"] = {"accountId": my_account_id}
 
             response = self.session.post(url, json=payload)
+
+            # Check for errors
+            if response.status_code >= 400:
+                try:
+                    error_data = response.json()
+                    errors = error_data.get("errors", {})
+                    error_messages = error_data.get("errorMessages", [])
+                    if errors or error_messages:
+                        import sys
+                        print(f"[Jira] Subtask creation failed: {errors or error_messages}", file=sys.stderr)
+                except Exception:
+                    pass
+
             response.raise_for_status()
 
             return response.json().get("key")
-        except Exception:
+        except Exception as e:
+            import sys
+            print(f"[Jira] Subtask creation error: {e}", file=sys.stderr)
             return None
 
     def can_create_issues(self) -> bool:
