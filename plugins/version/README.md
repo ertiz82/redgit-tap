@@ -1,40 +1,81 @@
 # Version Plugin for RedGit
 
-Semantic versioning management for projects.
+Semantic versioning management for projects with automatic file updates and git tagging.
 
 ## Features
 
 - Auto-detects version files (package.json, pyproject.toml, etc.)
 - Bumps versions following SemVer conventions
 - Updates all version files automatically
-- Creates git tags
-- Integrates with changelog plugin
+- Creates git tags for releases
+- Integrates with changelog plugin for automatic changelog generation
 
 ## Installation
 
 ```bash
-rg plugin install version
+rg install version
 ```
 
 ## Commands
 
+### Show Current Version
+
 ```bash
-# Initialize versioning
+rg version show
+```
+
+### Initialize Versioning
+
+```bash
+# Interactive initialization
 rg version init
 
-# Show current version
-rg version show
+# Set specific initial version
+rg version init -v 1.0.0
+```
 
-# Bump versions
-rg version release patch   # 0.1.0 -> 0.1.1
-rg version release minor   # 0.1.1 -> 0.2.0
-rg version release major   # 0.2.0 -> 1.0.0
+### Set Version
 
-# Shortcut
-rg release patch
+```bash
+# Set a specific version
+rg version set 1.2.0
+
+# Set without updating project files
+rg version set 1.2.0 --no-update-files
+```
+
+### Release New Version
+
+```bash
+# Bump patch version (0.1.0 -> 0.1.1)
+rg version release patch
+
+# Bump minor version (0.1.1 -> 0.2.0)
+rg version release minor
+
+# Bump major version (0.2.0 -> 1.0.0)
+rg version release major
+
+# Release without creating git tag
+rg version release patch --no-tag
+
+# Release and push tag to remote
+rg version release minor --push
+
+# Release without changelog generation
+rg version release patch --no-changelog
+```
+
+### List Version History
+
+```bash
+# List all version tags
+rg version list
 ```
 
 ## Supported Version Files
+
+The plugin automatically detects and updates version in these files:
 
 | File | Pattern |
 |------|---------|
@@ -44,27 +85,66 @@ rg release patch
 | `setup.py` | `version="x.y.z"` |
 | `version.txt` | `x.y.z` |
 | `VERSION` | `x.y.z` |
-| `__init__.py` | `__version__ = "x.y.z"` |
+| `*/__init__.py` | `__version__ = "x.y.z"` |
 
 ## Configuration
 
 ```yaml
+# .redgit/config.yaml
 plugins:
+  enabled:
+    - version
   version:
     enabled: true
-    tag_prefix: "v"
-    current: "1.0.0"
+    current: "1.0.0"      # Current version
+    tag_prefix: "v"       # Git tag prefix (default: "v")
 ```
 
 ## Semantic Versioning
 
-- **MAJOR**: Incompatible API changes
+Follow [SemVer](https://semver.org/) conventions:
+
+- **MAJOR**: Incompatible API changes (breaking changes)
 - **MINOR**: New functionality (backwards compatible)
 - **PATCH**: Bug fixes (backwards compatible)
 
 ## Integration with Changelog
 
-When changelog plugin is enabled, version bumps automatically generate changelog entries.
+When the changelog plugin is enabled, version releases automatically generate changelog entries:
+
+```bash
+# Enable both plugins
+rg install version
+rg install changelog
+
+# Release will automatically generate changelog
+rg version release minor
+```
+
+The release command will:
+1. Bump version in all files
+2. Generate changelog from commits since last version
+3. Create and optionally push git tag
+
+## Release Workflow Example
+
+```bash
+# Check current version
+rg version show
+
+# Make your changes and commits
+git add .
+git commit -m "feat: add new feature"
+
+# Release new minor version
+rg version release minor --push
+
+# This will:
+# - Bump 1.0.0 -> 1.1.0 in all version files
+# - Generate changelog for v1.1.0
+# - Create git tag v1.1.0
+# - Push tag to remote
+```
 
 ## License
 
