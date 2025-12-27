@@ -241,4 +241,10 @@ class VersionPlugin(Plugin):
     def is_changelog_enabled(self) -> bool:
         """Check if changelog plugin is enabled."""
         config = self.config_manager.load()
-        return config.get("plugins", {}).get("changelog", {}).get("enabled", False)
+        plugins_config = config.get("plugins", {})
+        # Check enabled list first
+        enabled_list = plugins_config.get("enabled", [])
+        if "changelog" in enabled_list:
+            return True
+        # Fallback to changelog.enabled flag
+        return plugins_config.get("changelog", {}).get("enabled", False)
