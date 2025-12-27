@@ -86,6 +86,18 @@ rg install slack@v1.0.0
 | [bitbucket-pipelines](./integrations/bitbucket-pipelines) | Manage Bitbucket pipelines and builds |
 | [drone-ci](./integrations/drone-ci) | Manage Drone builds, promotions, and approvals |
 
+### Tunnel
+
+Expose local ports to the internet for webhooks, Planning Poker, and remote access.
+
+| Name | Description |
+|------|-------------|
+| [ngrok](./integrations/ngrok) | Expose local ports via ngrok tunnels |
+| [cloudflare-tunnel](./integrations/cloudflare-tunnel) | Expose local ports via Cloudflare Tunnels |
+| [localtunnel](./integrations/localtunnel) | Expose local ports via localtunnel.me (no signup) |
+| [bore](./integrations/bore) | Fast and secure TCP tunnel written in Rust |
+| [serveo](./integrations/serveo) | SSH-based tunnel - no installation required |
+
 ### Code Quality
 
 | Name | Description |
@@ -163,6 +175,7 @@ integrations/my-integration/
 | `task_management` | `TaskManagementBase` | Issue tracking, sprints |
 | `ci_cd` | `CICDBase` | CI/CD pipelines, builds, deployments |
 | `code_quality` | `CodeQualityBase` | Code analysis, security scanning, coverage |
+| `tunnel` | `TunnelBase` | Expose local ports to the internet |
 
 ### Example Integration
 
