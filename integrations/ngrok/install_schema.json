@@ -1,0 +1,59 @@
+{
+  "name": "Ngrok",
+  "description": "Expose local ports to the internet via ngrok tunnels",
+  "type": "tunnel",
+  "fields": [
+    {
+      "name": "auth_token",
+      "label": "Auth Token",
+      "type": "password",
+      "required": false,
+      "env_var": "NGROK_AUTH_TOKEN",
+      "help": "Optional: ngrok auth token for longer sessions and custom domains",
+      "pre_prompt": [
+        "1. Sign up at https://ngrok.com (free)",
+        "2. Go to https://dashboard.ngrok.com/get-started/your-authtoken",
+        "3. Copy your auth token"
+      ]
+    },
+    {
+      "name": "region",
+      "label": "Region",
+      "type": "select",
+      "required": false,
+      "default": "us",
+      "options": [
+        {"value": "us", "label": "United States"},
+        {"value": "eu", "label": "Europe"},
+        {"value": "ap", "label": "Asia/Pacific"},
+        {"value": "au", "label": "Australia"},
+        {"value": "sa", "label": "South America"},
+        {"value": "jp", "label": "Japan"},
+        {"value": "in", "label": "India"}
+      ],
+      "help": "Server region for lower latency"
+    }
+  ],
+  "post_install": [
+    "Test with: rg tunnel start 8080",
+    "Check status: rg tunnel status",
+    "Stop tunnel: rg tunnel stop"
+  ],
+  "links": {
+    "dashboard": "https://dashboard.ngrok.com",
+    "docs": "https://ngrok.com/docs",
+    "download": "https://ngrok.com/download"
+  },
+  "prerequisites": [
+    {
+      "name": "ngrok",
+      "check": "ngrok version",
+      "install_url": "https://ngrok.com/download",
+      "install_instructions": [
+        "1. Download ngrok from https://ngrok.com/download",
+        "2. Unzip and move to your PATH",
+        "3. Run 'ngrok version' to verify installation"
+      ]
+    }
+  ]
+}
