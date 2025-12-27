@@ -1,0 +1,41 @@
+{
+  "name": "Cloudflare Tunnel",
+  "description": "Expose local ports via Cloudflare Tunnels (cloudflared)",
+  "type": "tunnel",
+  "fields": [
+    {
+      "name": "tunnel_id",
+      "label": "Tunnel ID",
+      "type": "text",
+      "required": false,
+      "help": "Optional: Named tunnel ID for persistent URLs. Leave empty for quick tunnels.",
+      "pre_prompt": [
+        "Quick tunnels work without any configuration!",
+        "For persistent URLs, create a named tunnel:",
+        "  cloudflared tunnel create <name>",
+        "Then enter the tunnel ID here."
+      ]
+    }
+  ],
+  "post_install": [
+    "Test with: rg tunnel start 8080",
+    "Check status: rg tunnel status",
+    "Stop tunnel: rg tunnel stop"
+  ],
+  "links": {
+    "docs": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/",
+    "download": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"
+  },
+  "prerequisites": [
+    {
+      "name": "cloudflared",
+      "check": "cloudflared version",
+      "install_url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/",
+      "install_instructions": [
+        "macOS: brew install cloudflared",
+        "Linux: Download from the Cloudflare website",
+        "Windows: Download .exe from the Cloudflare website"
+      ]
+    }
+  ]
+}
