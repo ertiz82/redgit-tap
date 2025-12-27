@@ -59,7 +59,7 @@
     },
     "telegram": {
       "description": "Send notifications to Telegram chats via Bot API",
-      "version": "1.0.0",
+      "version": "1.3.0",
       "type": "notification",
       "author": "RedGit Team"
     },
