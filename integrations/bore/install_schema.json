@@ -1,0 +1,40 @@
+{
+  "name": "Bore",
+  "description": "Fast and secure TCP tunnel written in Rust",
+  "type": "tunnel",
+  "fields": [
+    {
+      "name": "server",
+      "label": "Server",
+      "type": "text",
+      "required": false,
+      "default": "bore.pub",
+      "help": "Bore server address (default: bore.pub)"
+    },
+    {
+      "name": "secret",
+      "label": "Secret",
+      "type": "password",
+      "required": false,
+      "help": "Optional: Secret for authenticated tunnels"
+    }
+  ],
+  "post_install": [
+    "Test with: rg tunnel start 8080",
+    "Check status: rg tunnel status"
+  ],
+  "links": {
+    "github": "https://github.com/ekzhang/bore",
+    "releases": "https://github.com/ekzhang/bore/releases"
+  },
+  "prerequisites": [
+    {
+      "name": "bore",
+      "check": "bore --version",
+      "install_instructions": [
+        "cargo install bore-cli",
+        "Or download binary from GitHub releases"
+      ]
+    }
+  ]
+}
