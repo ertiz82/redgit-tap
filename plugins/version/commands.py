@@ -228,6 +228,114 @@ def release_cmd(
     ))
 
 
+@version_app.command("current")
+def current_cmd(
+    tag: bool = typer.Option(
+        True, "--tag/--no-tag",
+        help="Create git tag for the current version"
+    ),
+    push: bool = typer.Option(
+        False, "--push", "-p",
+        help="Push tag to remote after creating"
+    ),
+    changelog: bool = typer.Option(
+        True, "--changelog/--no-changelog",
+        help="Generate changelog (if changelog plugin is enabled)"
+    ),
+):
+    """Release current version without bumping (tag + changelog only)."""
+    plugin, _ = get_plugin()
+
+    # Get current version
+    current = plugin.get_current_version()
+    if not current:
+        console.print("[yellow]No version found. Run 'rg version init' first.[/yellow]")
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Releasing current version: {current}[/cyan]")
+
+    # Get previous tag for changelog
+    tag_prefix = plugin.get_tag_prefix()
+    current_tag = f"{tag_prefix}{current}"
+
+    # Check if tag already exists
+    try:
+        result = subprocess.run(
+            ["git", "tag", "-l", current_tag],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if result.stdout.strip() == current_tag:
+            console.print(f"[yellow]Tag {current_tag} already exists.[/yellow]")
+            if not Confirm.ask("Continue with changelog only?", default=True):
+                raise typer.Exit(0)
+            tag = False
+    except subprocess.CalledProcessError:
+        pass
+
+    # Generate changelog if enabled
+    if changelog and plugin.is_changelog_enabled():
+        console.print("\n[cyan]Generating changelog...[/cyan]")
+        try:
+            # Find previous tag
+            result = subprocess.run(
+                ["git", "tag", "-l", f"{tag_prefix}*", "--sort=-version:refname"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            tags = [t for t in result.stdout.strip().split("\n") if t and t != current_tag]
+            from_tag = tags[0] if tags else None
+
+            # Import changelog plugin commands
+            changelog_commands_path = Path(__file__).parent.parent / "changelog" / "commands.py"
+            if changelog_commands_path.exists():
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("changelog_commands", changelog_commands_path)
+                changelog_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(changelog_module)
+
+                # Call generate with the from_tag
+                changelog_module.generate_cmd(
+                    version=str(current),
+                    from_ref=from_tag,
+                    to_ref="HEAD",
+                    update_main=True
+                )
+        except Exception as e:
+            console.print(f"[yellow]Changelog generation skipped: {e}[/yellow]")
+
+    # Create git tag
+    if tag:
+        console.print(f"\n[cyan]Creating tag: {current_tag}[/cyan]")
+        try:
+            subprocess.run(
+                ["git", "tag", "-a", current_tag, "-m", f"Release {current}"],
+                check=True,
+                capture_output=True
+            )
+            console.print(f"[green]Created tag: {current_tag}[/green]")
+
+            if push:
+                console.print(f"[cyan]Pushing tag to remote...[/cyan]")
+                subprocess.run(
+                    ["git", "push", "origin", current_tag],
+                    check=True,
+                    capture_output=True
+                )
+                console.print(f"[green]Pushed tag: {current_tag}[/green]")
+
+        except subprocess.CalledProcessError as e:
+            console.print(f"[yellow]Failed to create/push tag: {e.stderr.decode() if e.stderr else str(e)}[/yellow]")
+
+    # Summary
+    console.print(Panel(
+        f"[bold green]Released version {current}[/bold green]",
+        border_style="green"
+    ))
+
+
 @version_app.command("list")
 def list_cmd():
     """List version tags from git history."""
@@ -266,7 +374,57 @@ def list_cmd():
         console.print("[red]Failed to list git tags.[/red]")
 
 
-# Shortcuts for direct release commands
-def release_shortcut():
-    """Shortcut for 'rg release' -> 'rg version release'"""
-    release_cmd(level="patch", tag=True, push=False, changelog=True)
+# Shortcut app for 'rg release' with subcommands
+release_app = typer.Typer(
+    name="release",
+    help="Shortcut for 'rg release' -> 'rg version release'",
+    invoke_without_command=True
+)
+
+
+@release_app.callback(invoke_without_command=True)
+def release_callback(ctx: typer.Context):
+    """Release a new version. Defaults to patch bump if no subcommand given."""
+    if ctx.invoked_subcommand is None:
+        # Default behavior: patch release
+        release_cmd(level="patch", tag=True, push=False, changelog=True)
+
+
+@release_app.command("current")
+def release_current_cmd(
+    tag: bool = typer.Option(True, "--tag/--no-tag", help="Create git tag"),
+    push: bool = typer.Option(False, "--push", "-p", help="Push tag to remote"),
+    changelog: bool = typer.Option(True, "--changelog/--no-changelog", help="Generate changelog"),
+):
+    """Release current version without bumping (tag + changelog only)."""
+    current_cmd(tag=tag, push=push, changelog=changelog)
+
+
+@release_app.command("patch")
+def release_patch_cmd(
+    tag: bool = typer.Option(True, "--tag/--no-tag", help="Create git tag"),
+    push: bool = typer.Option(False, "--push", "-p", help="Push tag to remote"),
+    changelog: bool = typer.Option(True, "--changelog/--no-changelog", help="Generate changelog"),
+):
+    """Release with patch version bump (x.x.X)."""
+    release_cmd(level="patch", tag=tag, push=push, changelog=changelog)
+
+
+@release_app.command("minor")
+def release_minor_cmd(
+    tag: bool = typer.Option(True, "--tag/--no-tag", help="Create git tag"),
+    push: bool = typer.Option(False, "--push", "-p", help="Push tag to remote"),
+    changelog: bool = typer.Option(True, "--changelog/--no-changelog", help="Generate changelog"),
+):
+    """Release with minor version bump (x.X.0)."""
+    release_cmd(level="minor", tag=tag, push=push, changelog=changelog)
+
+
+@release_app.command("major")
+def release_major_cmd(
+    tag: bool = typer.Option(True, "--tag/--no-tag", help="Create git tag"),
+    push: bool = typer.Option(False, "--push", "-p", help="Push tag to remote"),
+    changelog: bool = typer.Option(True, "--changelog/--no-changelog", help="Generate changelog"),
+):
+    """Release with major version bump (X.0.0)."""
+    release_cmd(level="major", tag=tag, push=push, changelog=changelog)
