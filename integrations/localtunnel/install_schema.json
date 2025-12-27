@@ -1,0 +1,40 @@
+{
+  "name": "Localtunnel",
+  "description": "Expose local ports via localtunnel.me (no signup required)",
+  "type": "tunnel",
+  "fields": [
+    {
+      "name": "subdomain",
+      "label": "Subdomain",
+      "type": "text",
+      "required": false,
+      "help": "Optional: Request a specific subdomain (e.g., 'myapp' for myapp.loca.lt)"
+    },
+    {
+      "name": "host",
+      "label": "Host",
+      "type": "text",
+      "required": false,
+      "default": "https://localtunnel.me",
+      "help": "Optional: Custom localtunnel server URL"
+    }
+  ],
+  "post_install": [
+    "Test with: rg tunnel start 8080",
+    "Check status: rg tunnel status"
+  ],
+  "links": {
+    "docs": "https://theboroer.github.io/localtunnel-www/",
+    "github": "https://github.com/localtunnel/localtunnel"
+  },
+  "prerequisites": [
+    {
+      "name": "localtunnel",
+      "check": "lt --version",
+      "install_instructions": [
+        "npm install -g localtunnel",
+        "Or use with npx: npx localtunnel --port 8080"
+      ]
+    }
+  ]
+}
