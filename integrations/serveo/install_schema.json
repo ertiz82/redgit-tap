@@ -1,0 +1,32 @@
+{
+  "name": "Serveo",
+  "description": "SSH-based tunnel service - no installation required",
+  "type": "tunnel",
+  "fields": [
+    {
+      "name": "subdomain",
+      "label": "Subdomain",
+      "type": "text",
+      "required": false,
+      "help": "Optional: Request a specific subdomain (e.g., 'myapp' for myapp.serveo.net)"
+    }
+  ],
+  "post_install": [
+    "Test with: rg tunnel start 8080",
+    "Check status: rg tunnel status",
+    "Note: Uses SSH, no extra installation needed!"
+  ],
+  "links": {
+    "docs": "https://serveo.net"
+  },
+  "prerequisites": [
+    {
+      "name": "ssh",
+      "check": "ssh -V",
+      "install_instructions": [
+        "SSH is usually pre-installed on macOS and Linux",
+        "Windows: Install OpenSSH or use Git Bash"
+      ]
+    }
+  ]
+}
