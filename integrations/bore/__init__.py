@@ -5,6 +5,7 @@ Exposes local ports to the internet via bore.pub.
 A simple, fast, and secure tunnel written in Rust.
 """
 
+import os
 import subprocess
 import time
 import re
@@ -104,6 +105,8 @@ class BoreIntegration(TunnelBase):
 
             if url_info:
                 self._public_url = url_info
+                # Save state for persistence
+                self._save_state(self._process.pid, self._public_url, port)
                 return self._public_url
 
             # Failed
@@ -165,6 +168,20 @@ class BoreIntegration(TunnelBase):
         self._public_url = None
         self._remote_port = None
 
+        # Check persisted state and kill that process too
+        state = self._load_state()
+        if state:
+            pid = state.get("pid")
+            if pid:
+                try:
+                    os.kill(pid, 15)  # SIGTERM
+                    stopped = True
+                except (OSError, ProcessLookupError):
+                    pass
+
+        # Clear persisted state
+        self._clear_state()
+
         # Kill any other bore processes
         try:
             subprocess.run(
@@ -180,20 +197,40 @@ class BoreIntegration(TunnelBase):
 
     def get_public_url(self) -> Optional[str]:
         """Get the current public URL if tunnel is active."""
+        # Check in-memory state first
         if self._public_url and self._process and self._process.poll() is None:
             return self._public_url
+
+        # Check persisted state
+        state = self._load_state()
+        if state:
+            pid = state.get("pid")
+            if pid and self._is_process_running(pid):
+                return state.get("url")
+            else:
+                # Process died, clear state
+                self._clear_state()
+
         return None
 
     def get_status(self) -> Dict[str, Any]:
         """Get detailed tunnel status."""
         url = self.get_public_url()
-        return {
+        status = {
             "running": url is not None,
             "url": url,
             "integration": self.name,
             "server": self.server,
             "remote_port": self._remote_port
         }
+
+        # Add port info from persisted state
+        state = self._load_state()
+        if state:
+            status["port"] = state.get("port")
+            status["pid"] = state.get("pid")
+
+        return status
 
     def _is_bore_installed(self) -> bool:
         """Check if bore is installed."""

@@ -105,6 +105,8 @@ class CloudflareTunnelIntegration(TunnelBase):
             self._public_url = self._wait_for_url(timeout=30)
 
             if self._public_url:
+                # Save state for persistence
+                self._save_state(self._process.pid, self._public_url, port)
                 return self._public_url
 
             # Failed to get URL
@@ -162,6 +164,20 @@ class CloudflareTunnelIntegration(TunnelBase):
 
         self._public_url = None
 
+        # Check persisted state and kill that process too
+        state = self._load_state()
+        if state:
+            pid = state.get("pid")
+            if pid:
+                try:
+                    os.kill(pid, 15)  # SIGTERM
+                    stopped = True
+                except (OSError, ProcessLookupError):
+                    pass
+
+        # Clear persisted state
+        self._clear_state()
+
         # Also kill any other cloudflared tunnel processes
         try:
             subprocess.run(
@@ -177,19 +193,39 @@ class CloudflareTunnelIntegration(TunnelBase):
 
     def get_public_url(self) -> Optional[str]:
         """Get the current public URL if tunnel is active."""
+        # Check in-memory state first
         if self._public_url and self._process and self._process.poll() is None:
             return self._public_url
+
+        # Check persisted state
+        state = self._load_state()
+        if state:
+            pid = state.get("pid")
+            if pid and self._is_process_running(pid):
+                return state.get("url")
+            else:
+                # Process died, clear state
+                self._clear_state()
+
         return None
 
     def get_status(self) -> Dict[str, Any]:
         """Get detailed tunnel status."""
         url = self.get_public_url()
-        return {
+        status = {
             "running": url is not None,
             "url": url,
             "integration": self.name,
             "tunnel_id": self.tunnel_id or "(quick tunnel)"
         }
+
+        # Add port info from persisted state
+        state = self._load_state()
+        if state:
+            status["port"] = state.get("port")
+            status["pid"] = state.get("pid")
+
+        return status
 
     def _is_cloudflared_installed(self) -> bool:
         """Check if cloudflared is installed and available."""

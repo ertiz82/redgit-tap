@@ -1292,6 +1292,42 @@ class JiraIntegration(TaskManagementBase):
         except Exception:
             return None
 
+    def get_current_user(self) -> Optional[Dict[str, Any]]:
+        """
+        Get current authenticated user info (override base class).
+
+        Returns:
+            Dict with 'id', 'display_name', 'email' or None
+        """
+        account_id = self._get_my_account_id()
+        if account_id:
+            user = self.get_user(account_id)
+            if user:
+                return {
+                    "id": user.get("account_id"),
+                    "display_name": user.get("display_name"),
+                    "email": user.get("email")
+                }
+        return None
+
+    def get_team_members(self, project_key: str = None) -> List[Dict[str, Any]]:
+        """
+        Get team members for a project (override base class).
+
+        Returns:
+            List of dicts with 'id', 'display_name', 'email', 'active'
+        """
+        users = self.get_project_users(project_key)
+        return [
+            {
+                "id": u.get("account_id"),
+                "display_name": u.get("display_name"),
+                "email": u.get("email"),
+                "active": u.get("active", True)
+            }
+            for u in users
+        ]
+
     def search_users(self, query: str, max_results: int = 50) -> List[Dict]:
         """Search users by name or email."""
         if not self.enabled:

@@ -129,6 +129,8 @@ class NgrokIntegration(TunnelBase):
             self._public_url = self._get_url_from_api()
 
             if self._public_url:
+                # Save state for persistence
+                self._save_state(self._process.pid, self._public_url, port)
                 return self._public_url
 
             # Ngrok might still be starting
@@ -136,6 +138,8 @@ class NgrokIntegration(TunnelBase):
             self._public_url = self._get_url_from_api()
 
             if self._public_url:
+                # Save state for persistence
+                self._save_state(self._process.pid, self._public_url, port)
                 return self._public_url
 
             # Failed to get URL
@@ -166,6 +170,20 @@ class NgrokIntegration(TunnelBase):
 
         self._public_url = None
 
+        # Check persisted state and kill that process too
+        state = self._load_state()
+        if state:
+            pid = state.get("pid")
+            if pid:
+                try:
+                    os.kill(pid, 15)  # SIGTERM
+                    stopped = True
+                except (OSError, ProcessLookupError):
+                    pass
+
+        # Clear persisted state
+        self._clear_state()
+
         # Also kill any other ngrok processes (cleanup)
         try:
             subprocess.run(
@@ -190,9 +208,26 @@ class NgrokIntegration(TunnelBase):
 
     def get_public_url(self) -> Optional[str]:
         """Get the current public URL if tunnel is active."""
+        # Check in-memory state first
         if self._public_url:
             return self._public_url
-        return self._get_url_from_api()
+
+        # Try ngrok API (most reliable)
+        url = self._get_url_from_api()
+        if url:
+            return url
+
+        # Check persisted state
+        state = self._load_state()
+        if state:
+            pid = state.get("pid")
+            if pid and self._is_process_running(pid):
+                return state.get("url")
+            else:
+                # Process died, clear state
+                self._clear_state()
+
+        return None
 
     def get_status(self) -> Dict[str, Any]:
         """Get detailed tunnel status."""
@@ -204,6 +239,12 @@ class NgrokIntegration(TunnelBase):
             "region": self.region,
             "has_auth": bool(self.auth_token)
         }
+
+        # Add port/pid info from persisted state
+        state = self._load_state()
+        if state:
+            status["port"] = state.get("port")
+            status["pid"] = state.get("pid")
 
         # Try to get more details from ngrok API
         api_status = self._get_api_status()
