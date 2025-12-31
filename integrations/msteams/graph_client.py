@@ -9,20 +9,33 @@ Handles all communication with Microsoft Graph API including:
 
 import json
 import time
+import importlib.util
+from pathlib import Path
 from typing import Optional, List, Callable, Dict, Any
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from urllib.parse import quote
 
-from .auth import DeviceCodeAuth
-from .models import TokenInfo
-from .exceptions import (
-    GraphAPIError,
-    RateLimitError,
-    TokenRefreshError,
-    NotFoundError,
-    PermissionDeniedError,
-)
+# Dynamic sibling import helper
+def _import_sibling(module_name: str):
+    module_path = Path(__file__).parent / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+# Import sibling modules
+_auth = _import_sibling("auth")
+_models = _import_sibling("models")
+_exceptions = _import_sibling("exceptions")
+
+DeviceCodeAuth = _auth.DeviceCodeAuth
+TokenInfo = _models.TokenInfo
+GraphAPIError = _exceptions.GraphAPIError
+RateLimitError = _exceptions.RateLimitError
+TokenRefreshError = _exceptions.TokenRefreshError
+NotFoundError = _exceptions.NotFoundError
+PermissionDeniedError = _exceptions.PermissionDeniedError
 
 GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0"
 

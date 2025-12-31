@@ -14,9 +14,24 @@ import webbrowser
 from typing import Optional, Callable
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+import importlib.util
+from pathlib import Path
 
-from .models import TokenInfo
-from .exceptions import AuthenticationError, TokenRefreshError
+# Dynamic sibling import helper
+def _import_sibling(module_name: str):
+    module_path = Path(__file__).parent / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+# Import sibling modules
+_models = _import_sibling("models")
+_exceptions = _import_sibling("exceptions")
+
+TokenInfo = _models.TokenInfo
+AuthenticationError = _exceptions.AuthenticationError
+TokenRefreshError = _exceptions.TokenRefreshError
 
 # Microsoft identity platform endpoints
 AUTHORITY = "https://login.microsoftonline.com"
