@@ -11,8 +11,22 @@ Commands:
     rg msteams send      - Send a test message
 """
 
+import sys
+import importlib.util
+from pathlib import Path
 import typer
 from typing import Optional
+
+# Get the directory containing this file for sibling imports
+_THIS_DIR = Path(__file__).parent
+
+def _import_sibling(module_name: str):
+    """Import a sibling module from the same directory."""
+    module_path = _THIS_DIR / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 msteams_app = typer.Typer(help="Microsoft Teams integration commands")
 
@@ -86,7 +100,8 @@ def _get_integration():
     if not access_token:
         return None
 
-    from .graph_client import GraphClient
+    graph_client_module = _import_sibling("graph_client")
+    GraphClient = graph_client_module.GraphClient
 
     return GraphClient(
         tenant_id=tenant_id,
@@ -126,7 +141,9 @@ def login_cmd(
     typer.echo("\nAuthenticating with Microsoft Teams...")
     typer.echo("=" * 50)
 
-    from .auth import DeviceCodeAuth, AuthenticationError
+    auth_module = _import_sibling("auth")
+    DeviceCodeAuth = auth_module.DeviceCodeAuth
+    AuthenticationError = auth_module.AuthenticationError
 
     auth = DeviceCodeAuth(tenant_id, client_id)
 
