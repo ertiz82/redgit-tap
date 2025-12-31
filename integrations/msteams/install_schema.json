@@ -1,23 +1,48 @@
 {
   "name": "Microsoft Teams",
-  "description": "Send notifications to Teams channels via Incoming Webhooks",
+  "description": "Send notifications to Teams channels via Graph API or Incoming Webhooks",
   "type": "notification",
   "fields": [
     {
+      "name": "tenant_id",
+      "label": "Azure AD Tenant ID",
+      "type": "text",
+      "required": false,
+      "help": "For Graph API: Azure Portal > Azure AD > Overview > Directory (tenant) ID"
+    },
+    {
+      "name": "client_id",
+      "label": "Application (Client) ID",
+      "type": "text",
+      "required": false,
+      "help": "For Graph API: App Registration > Overview > Application (client) ID"
+    },
+    {
       "name": "webhook_url",
-      "label": "Webhook URL",
+      "label": "Webhook URL (optional)",
       "type": "password",
-      "required": true,
+      "required": false,
       "env_var": "MSTEAMS_WEBHOOK_URL",
-      "help": "Create Incoming Webhook connector in Teams channel"
+      "help": "For simple notifications: Incoming Webhook connector URL"
     }
   ],
   "post_install": [
-    "Test with 'rg notify \"Hello from RedGit!\"'",
-    "Teams webhook is ready for notifications"
+    "",
+    "GRAPH API SETUP (Recommended):",
+    "1. Create App Registration in Azure Portal",
+    "2. Add API permissions: User.Read.All, Team.ReadBasic.All,",
+    "   Channel.ReadBasic.All, ChannelMessage.Send, ChatMessage.Send, Chat.Create",
+    "3. Grant admin consent",
+    "4. Enable 'Allow public client flows' in Authentication",
+    "5. Run: rg msteams login",
+    "",
+    "WEBHOOK SETUP (Simple):",
+    "- Just enter webhook URL above",
+    "- Test with: rg notify 'Hello from RedGit!'"
   ],
   "links": {
+    "graph_api_guide": "https://docs.microsoft.com/en-us/graph/api/resources/teams-api-overview",
     "webhook_guide": "https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook",
-    "card_reference": "https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference"
+    "app_registration": "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
   }
 }
