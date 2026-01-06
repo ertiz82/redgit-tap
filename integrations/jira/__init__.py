@@ -409,11 +409,15 @@ class JiraIntegration(TaskManagementBase):
 
     def _get_issue_fields(self, include_priority: bool = False) -> str:
         """Get dynamic fields string for API calls."""
-        fields = ["summary", "status", "issuetype", "assignee", "description"]
+        fields = ["summary", "status", "issuetype", "assignee", "description", "parent"]
         if self.story_points_field:
             fields.append(self.story_points_field)
         if include_priority:
             fields.append("priority")
+        # Add epic link field if known
+        epic_field = self.get_epic_link_field()
+        if epic_field and epic_field not in fields:
+            fields.append(epic_field)
         return ",".join(fields)
 
     def get_my_active_issues(self, exclude_subtasks: bool = True) -> List[Issue]:
@@ -1540,6 +1544,27 @@ class JiraIntegration(TaskManagementBase):
         if self.story_points_field:
             story_points = fields.get(self.story_points_field)
 
+        # Extract parent/epic info
+        parent_key = None
+        parent_summary = None
+
+        # Next-gen projects use 'parent' field
+        parent_data = fields.get("parent")
+        if parent_data:
+            parent_key = parent_data.get("key")
+            parent_fields = parent_data.get("fields", {})
+            parent_summary = parent_fields.get("summary", "")
+
+        # Classic projects may use epic link custom field
+        if not parent_key:
+            epic_field = self.get_epic_link_field()
+            if epic_field:
+                epic_key = fields.get(epic_field)
+                if epic_key:
+                    parent_key = epic_key
+                    # Epic summary might be in a separate field or need to be fetched
+                    # For now, just use the key
+
         return Issue(
             key=data.get("key", ""),
             summary=fields.get("summary", ""),
@@ -1548,7 +1573,9 @@ class JiraIntegration(TaskManagementBase):
             issue_type=fields.get("issuetype", {}).get("name", "Task"),
             assignee=assignee,
             url=f"{self.site}/browse/{data.get('key', '')}",
-            story_points=story_points
+            story_points=story_points,
+            parent_key=parent_key,
+            parent_summary=parent_summary
         )
 
     # ==================== Issue Linking ====================
