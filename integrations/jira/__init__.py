@@ -416,36 +416,42 @@ class JiraIntegration(TaskManagementBase):
             fields.append("priority")
         return ",".join(fields)
 
-    def get_my_active_issues(self) -> List[Issue]:
-        """Get issues assigned to current user that are in progress or to do."""
+    def get_my_active_issues(self, exclude_subtasks: bool = True) -> List[Issue]:
+        """Get issues assigned to current user that are in progress or to do.
+
+        Args:
+            exclude_subtasks: If True, filter out subtasks (subtasks can't have child subtasks)
+        """
         if not self.enabled:
             return []
 
         issues = []
 
+        # Build status list from config (todo + after_propose statuses)
+        active_statuses = []
+        active_statuses.extend(self.status_map.get("todo", ["To Do", "Open", "Backlog"]))
+        active_statuses.extend(self.status_map.get("after_propose", ["In Progress", "In Development"]))
+
+        # Remove duplicates and format for JQL
+        active_statuses = list(set(active_statuses))
+        status_jql = ", ".join(f'"{s}"' for s in active_statuses)
+
         # JQL to find active issues assigned to current user
         jql = (
             f'project = "{self.project_key}" '
             f'AND assignee = currentUser() '
-            f'AND status in ("To Do", "In Progress", "Open", "In Development") '
+            f'AND status in ({status_jql}) '
             f'ORDER BY updated DESC'
         )
 
-        try:
-            url = f"{self.site}/rest/api/3/search"
-            params = {
-                "jql": jql,
-                "maxResults": 50,
-                "fields": self._get_issue_fields()
-            }
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
-
-            for item in response.json().get("issues", []):
-                issues.append(self._parse_issue(item))
-
-        except Exception:
-            pass
+        # Use the new search method that handles API version changes
+        raw_issues = self._search_jql(jql, max_results=50)
+        for item in raw_issues:
+            issue = self._parse_issue(item)
+            # Filter out subtasks if requested (subtasks can't have child subtasks)
+            if exclude_subtasks and issue.issue_type and "subtask" in issue.issue_type.lower().replace("-", "").replace(" ", ""):
+                continue
+            issues.append(issue)
 
         # Also get issues from active sprint if using scrum (only mine)
         if self.board_type == "scrum" and self.board_id:
@@ -455,6 +461,9 @@ class JiraIntegration(TaskManagementBase):
             my_email = self.email.lower() if self.email else ""
             for si in sprint_issues:
                 if si.key not in existing_keys:
+                    # Skip subtasks
+                    if exclude_subtasks and si.issue_type and "subtask" in si.issue_type.lower().replace("-", "").replace(" ", ""):
+                        continue
                     # Only add if assigned to me (check by email or displayName match)
                     if si.assignee and my_email and my_email in si.assignee.lower():
                         issues.append(si)
@@ -1425,26 +1434,68 @@ class JiraIntegration(TaskManagementBase):
 
     # ==================== Issue Queries ====================
 
+    def _search_jql(self, jql: str, max_results: int = 50, fields: str = None) -> List[dict]:
+        """
+        Execute JQL search using the new /search/jql endpoint.
+        Falls back to legacy /search if new endpoint fails.
+
+        Args:
+            jql: JQL query string
+            max_results: Maximum results to return
+            fields: Comma-separated field names
+
+        Returns:
+            List of raw issue dicts from API
+        """
+        if not self.enabled:
+            return []
+
+        if fields is None:
+            fields = self._get_issue_fields(include_priority=True)
+
+        # Try new endpoint first (POST /rest/api/3/search/jql)
+        try:
+            url = f"{self.site}/rest/api/3/search/jql"
+            payload = {
+                "jql": jql,
+                "maxResults": max_results,
+                "fields": fields.split(",") if isinstance(fields, str) else fields
+            }
+            response = self.session.post(url, json=payload)
+
+            if response.status_code == 200:
+                return response.json().get("issues", [])
+
+        except Exception:
+            pass
+
+        # Fallback to legacy endpoint (GET /rest/api/3/search)
+        try:
+            url = f"{self.site}/rest/api/3/search"
+            params = {
+                "jql": jql,
+                "maxResults": max_results,
+                "fields": fields
+            }
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            return response.json().get("issues", [])
+
+        except Exception:
+            pass
+
+        return []
+
     def search_issues(self, jql: str, max_results: int = 50) -> List[Issue]:
         """Search issues using JQL."""
         if not self.enabled:
             return []
 
         issues = []
-        try:
-            url = f"{self.site}/rest/api/3/search"
-            params = {
-                "jql": jql,
-                "maxResults": max_results,
-                "fields": self._get_issue_fields(include_priority=True)
-            }
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
+        raw_issues = self._search_jql(jql, max_results)
 
-            for item in response.json().get("issues", []):
-                issues.append(self._parse_issue(item))
-        except Exception:
-            pass
+        for item in raw_issues:
+            issues.append(self._parse_issue(item))
 
         return issues
 
