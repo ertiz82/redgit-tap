@@ -111,6 +111,14 @@ Expose local ports to the internet for webhooks, Planning Poker, and remote acce
 | [codecov](./integrations/codecov) | Codecov code coverage reporting |
 | [coveralls](./integrations/coveralls) | Coveralls coverage tracking |
 
+### Error Tracking
+
+Track application errors, link commits to issues, and auto-resolve on deploy.
+
+| Name | Description |
+|------|-------------|
+| [sentry](./integrations/sentry) | Error tracking with automatic file-error matching and commit linking |
+
 ## Available Plugins
 
 | Name | Description |
@@ -131,6 +139,9 @@ rg install slack
 # Add Linear for task management
 rg install linear
 
+# Add Sentry for error tracking
+rg install sentry
+
 # List installed integrations
 rg integrations
 ```
@@ -147,11 +158,15 @@ integrations:
     webhook_url: "https://hooks.slack.com/..."
   linear:
     api_key: "lin_api_xxx"
+  sentry:
+    organization: "my-org"
+    project_slug: "my-project"
 
 active:
   code_hosting: github
   notification: slack
   task_management: linear
+  error_tracking: sentry
 ```
 
 ## Creating Your Own
@@ -176,6 +191,7 @@ integrations/my-integration/
 | `ci_cd` | `CICDBase` | CI/CD pipelines, builds, deployments |
 | `code_quality` | `CodeQualityBase` | Code analysis, security scanning, coverage |
 | `tunnel` | `TunnelBase` | Expose local ports to the internet |
+| `error_tracking` | `ErrorTrackingBase` | Error monitoring, commit-error linking |
 
 ### Example Integration
 
