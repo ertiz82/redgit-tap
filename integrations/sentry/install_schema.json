@@ -1,0 +1,65 @@
+{
+  "name": "Sentry",
+  "description": "Sentry integration - Track errors, link commits to issues, and auto-resolve on deploy",
+  "fields": [
+    {
+      "key": "organization",
+      "prompt": "Sentry organization slug",
+      "type": "text",
+      "placeholder": "my-org",
+      "help": "Found in your Sentry URL: sentry.io/organizations/<org-slug>/",
+      "required": true
+    },
+    {
+      "key": "project_slug",
+      "prompt": "Sentry project slug",
+      "type": "text",
+      "placeholder": "my-project",
+      "help": "Found in your project URL: sentry.io/organizations/<org>/projects/<project>/",
+      "required": true
+    },
+    {
+      "key": "auth_token",
+      "prompt": "Sentry Auth Token",
+      "type": "secret",
+      "env_var": "SENTRY_AUTH_TOKEN",
+      "help": "Create at: https://sentry.io/settings/account/api/auth-tokens/ (needs project:read, event:read, issue:write scopes)",
+      "required": true
+    },
+    {
+      "key": "environment",
+      "prompt": "Default environment to monitor",
+      "type": "choice",
+      "choices": ["production", "staging", "development"],
+      "default": "production",
+      "help": "Environment filter for fetching errors"
+    },
+    {
+      "key": "auto_resolve",
+      "prompt": "Auto-resolve errors when commits are linked",
+      "type": "boolean",
+      "default": false,
+      "help": "Automatically mark errors as resolved when a fix commit is created"
+    },
+    {
+      "key": "min_confidence",
+      "prompt": "Minimum match confidence (0.0-1.0)",
+      "type": "text",
+      "default": "0.5",
+      "help": "Minimum confidence score for file-error matching (0.5 = 50%)"
+    },
+    {
+      "key": "base_url",
+      "prompt": "Custom Sentry API URL (optional, for self-hosted)",
+      "type": "text",
+      "placeholder": "https://sentry.io/api/0",
+      "required": false,
+      "help": "Only change this if you're using a self-hosted Sentry instance"
+    }
+  ],
+  "defaults": {
+    "environment": "production",
+    "auto_resolve": false,
+    "min_confidence": 0.5
+  }
+}
