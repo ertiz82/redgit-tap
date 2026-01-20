@@ -201,6 +201,12 @@
       "version": "1.0.0",
       "type": "tunnel",
       "author": "RedGit Team"
+    },
+    "sentry": {
+      "description": "Error tracking and monitoring - link commits to errors, auto-resolve on deploy",
+      "version": "1.0.0",
+      "type": "error_tracking",
+      "author": "RedGit Team"
     }
   },
   "plugins": {
