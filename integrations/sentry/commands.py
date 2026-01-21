@@ -58,8 +58,11 @@ def _format_level(level: str) -> str:
     return f"[{color}]{level}[/{color}]"
 
 
-def _format_count(count: int) -> str:
+def _format_count(count: int | str | None) -> str:
     """Format count with appropriate suffix."""
+    if count is None:
+        return "0"
+    count = int(count)
     if count >= 1000000:
         return f"{count / 1000000:.1f}M"
     elif count >= 1000:
