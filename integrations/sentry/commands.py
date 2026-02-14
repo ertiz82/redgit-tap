@@ -90,7 +90,10 @@ def list_errors(
         )
 
     if not errors:
-        console.print(f"[green]No {status} errors found.[/green]")
+        if hasattr(sentry, '_last_error') and sentry._last_error:
+            console.print(f"[red]{sentry._last_error}[/red]")
+        else:
+            console.print(f"[green]No {status} errors found.[/green]")
         return
 
     table = Table(show_header=True)

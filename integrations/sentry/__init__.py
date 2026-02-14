@@ -113,6 +113,7 @@ class SentryIntegration(ErrorTrackingBase):
         self.min_confidence = 0.5
         self.auto_resolve = False
         self.session = None
+        self._last_error = None
 
     def setup(self, config: dict):
         """
@@ -151,18 +152,9 @@ class SentryIntegration(ErrorTrackingBase):
             "Content-Type": "application/json"
         })
 
-        # Test connection
-        try:
-            resp = self.session.get(
-                f"{self.base_url}/projects/{self.organization}/{self.project_slug}/",
-                timeout=10
-            )
-            if resp.status_code == 200:
-                self.enabled = True
-            else:
-                self.enabled = False
-        except Exception:
-            self.enabled = False
+        # Config is valid, enable the integration
+        # Individual API calls will handle errors gracefully
+        self.enabled = True
 
     def _make_request(self, method: str, endpoint: str, **kwargs) -> Optional[requests.Response]:
         """Make an authenticated request to Sentry API."""
@@ -172,8 +164,19 @@ class SentryIntegration(ErrorTrackingBase):
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         try:
             resp = self.session.request(method, url, timeout=30, **kwargs)
+            if resp.status_code == 401:
+                try:
+                    detail = resp.json().get("detail", {})
+                    if isinstance(detail, dict):
+                        msg = detail.get("message", "Unauthorized")
+                    else:
+                        msg = str(detail)
+                except Exception:
+                    msg = "Unauthorized"
+                self._last_error = f"Sentry API 401: {msg}"
             return resp
-        except Exception:
+        except Exception as e:
+            self._last_error = str(e)
             return None
 
     def _parse_stacktrace(self, exception_data: dict) -> List[ErrorStackFrame]:
