@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 try:
     from redgit.plugins.base import Plugin
-    from redgit.core.config import ConfigManager, RETGIT_DIR
+    from redgit.core.common.config import ConfigManager, RETGIT_DIR
 except ImportError:
     # Fallback for standalone usage
     class Plugin:
