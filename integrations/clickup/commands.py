@@ -19,9 +19,13 @@ from rich.table import Table
 from typing import Optional
 
 try:
-    from redgit.core.config import ConfigManager
+    try:
+        from redgit.core.config import ConfigManager
+    except ImportError:
+        from redgit.core.common.config import ConfigManager
     from redgit.integrations.registry import get_task_management
 except ImportError:
+    # Fallback for standalone testing
     ConfigManager = None
     get_task_management = None
 
