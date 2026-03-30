@@ -69,6 +69,7 @@ rg install slack@v1.0.0
 |------|-------------|
 | [jira](./integrations/jira) | Full-featured Jira Cloud with Scrum/Kanban support |
 | [linear](./integrations/linear) | Modern issue tracking with cycles and projects |
+| [clickup](./integrations/clickup) | Flexible task management with workspaces, spaces, and lists |
 | [notion](./integrations/notion) | Use Notion databases as task boards |
 | [asana](./integrations/asana) | Project and task management with Asana |
 | [trello](./integrations/trello) | Kanban board task management with Trello |
@@ -136,8 +137,9 @@ rg install github
 # Add Slack notifications
 rg install slack
 
-# Add Linear for task management
+# Add task management (choose one: linear, clickup, jira, asana, etc.)
 rg install linear
+rg install clickup
 
 # Add Sentry for error tracking
 rg install sentry
@@ -158,6 +160,10 @@ integrations:
     webhook_url: "https://hooks.slack.com/..."
   linear:
     api_key: "lin_api_xxx"
+  clickup:
+    api_token: "pk_xxxx"
+    team_id: "123456"
+    list_id: "789012"
   sentry:
     organization: "my-org"
     project_slug: "my-project"
@@ -165,7 +171,7 @@ integrations:
 active:
   code_hosting: github
   notification: slack
-  task_management: linear
+  task_management: clickup  # or: linear, jira, asana, trello, notion
   error_tracking: sentry
 ```
 

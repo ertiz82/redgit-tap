@@ -1,0 +1,70 @@
+{
+  "name": "ClickUp",
+  "description": "ClickUp task management integration for tasks, lists, and workspaces",
+  "fields": [
+    {
+      "name": "api_token",
+      "label": "Personal API Token",
+      "type": "secret",
+      "required": true,
+      "env_var": "CLICKUP_API_TOKEN",
+      "help": "Get from ClickUp → Settings → Apps → Personal API Token",
+      "pre_prompt": [
+        "To get your API token:",
+        "1. Log in to ClickUp",
+        "2. Go to Settings → Apps → Integrations",
+        "3. Click 'Create New' in API Tokens section",
+        "4. Copy your Personal API Token"
+      ]
+    },
+    {
+      "name": "team_id",
+      "label": "Workspace ID",
+      "type": "text",
+      "required": true,
+      "help": "Your ClickUp workspace/team ID (numeric). Can be found in API docs or team settings"
+    },
+    {
+      "name": "list_id",
+      "label": "Default List ID",
+      "type": "text",
+      "required": true,
+      "help": "ID of the list where new tasks will be created by default"
+    },
+    {
+      "name": "branch_pattern",
+      "label": "Branch name pattern",
+      "type": "choice",
+      "choices": [
+        "feature/CU-{issue_key}-{description}",
+        "feature/{issue_key}-{description}",
+        "CU-{issue_key}-{description}",
+        "{issue_key}/{description}"
+      ],
+      "default": "feature/CU-{issue_key}-{description}",
+      "help": "Template for git branch names created from tasks"
+    },
+    {
+      "name": "issue_language",
+      "label": "Language for AI-generated content",
+      "type": "choice",
+      "choices": ["en", "tr", "de", "fr", "es", "pt", "it", "ja"],
+      "default": "en",
+      "help": "Language for AI-generated task titles and descriptions"
+    }
+  ],
+  "defaults": {
+    "branch_pattern": "feature/CU-{issue_key}-{description}",
+    "issue_language": "en",
+    "statuses": {
+      "todo": ["to do", "open", "backlog"],
+      "in_progress": ["in progress", "in review", "active"],
+      "done": ["complete", "closed", "done"]
+    }
+  },
+  "post_install": [
+    "To view workspaces and lists, run: rg clickup workspaces",
+    "To view available lists in a space: rg clickup lists",
+    "Your tasks are ready to be managed with: rg clickup issues"
+  ]
+}
