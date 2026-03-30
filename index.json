@@ -124,6 +124,12 @@
       "type": "task_management",
       "author": "RedGit Team"
     },
+    "clickup": {
+      "description": "ClickUp flexible task management with workspaces, spaces, and lists",
+      "version": "1.0.0",
+      "type": "task_management",
+      "author": "RedGit Team"
+    },
     "github-actions": {
       "description": "Manage workflows, trigger runs, view status and logs",
       "version": "1.0.0",
